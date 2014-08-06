@@ -1,7 +1,6 @@
 import re, random
 import util
 global ircsock, user, dtype, target
-global later_conf
 
 def randext():
 	r = random.randint(1,12)

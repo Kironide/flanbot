@@ -16,7 +16,7 @@ def main():
 		ircsock.send('NICK '+botnick+'\n')
 		ircsock.setblocking(0) # THIS IS IMPORTANT!!!
 
-		sleep(1) # otherwise sometimes it doesn't work
+		sleep(3) # if i join channels too fast it doesn't work sometimes
 		for chan in channels:
 			functions.joinchan(chan)
 		ircsocks.append(ircsock)
