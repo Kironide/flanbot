@@ -1,6 +1,36 @@
-import re
+import re, random
 import util
 global ircsock, user, dtype, target
+global later_conf
+
+def randext():
+	r = random.randint(1,12)
+	if r == 1:
+		return '.'
+	elif r == 2:
+		return '...'
+	elif r == 3:
+		return '!'
+	elif r == 4:
+		return ', probably.'
+	elif r == 5:
+		return ', I think.'
+	elif r == 6:
+		return '. Remember, bullying is bad!'
+	elif r == 7:
+		return '. Bullies will be the first against the wall!'
+	elif r == 8:
+		return ', more or less.'
+	elif r == 9:
+		return '. Did you know Plato was the first anti-bully?'
+	elif r == 10:
+		return '. Transform: Anti-Bully Ranger!'
+	elif r == 10:
+		return '. Are you living the NEET life yet?'
+	elif r == 11:
+		return '. Are you living the literary life yet?'
+	elif r == 12:
+		return '. Hello, please respond...'
 
 def ping():
 	ircsock.send('PONG :pingis\n')
@@ -27,7 +57,7 @@ def check_later(nick, later):
 		print('found')
 		messages = util.read_later(nick)
 		for msg in messages:
-			reply(msg)
+			reply(msg+' '*random.randint(1,9))
 		util.remove_later(nick)
 		return True
 	return False
@@ -51,8 +81,14 @@ def irccommand(cmd, cmdtext):
 			else:
 				temp = cmdtext.split(' ')
 				later_nick = temp[0]
-				later_msg = ' '.join(temp[1:])
-				util.add_later(later_nick, util.get_nick(user), later_msg)
-				reply('Message to '+later_nick+' recorded.')
+				if len(later_nick) >= 3 and later_nick[:3].lower() == 'xpc':
+					reply('You know he doesn\'t like that'+randext())
+				else:
+					later_msg = ' '.join(temp[1:])
+					add = util.add_later(later_nick, util.get_nick(user), later_msg)
+					if add:
+						reply('Message to '+later_nick+' recorded'+randext())
+					else:
+						reply('You\'ve already sent that message three times already'+randext())
 	else:
 		reply('Invalid command.')
