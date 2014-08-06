@@ -21,6 +21,7 @@ def joinchan(chan):
 def partchan(chan):
 	ircsock.send('PART '+chan+'\n')
 
+# checks for msgs
 def check_later(nick, later):
 	if util.in_later(nick,later):
 		print('found')
@@ -33,19 +34,25 @@ def check_later(nick, later):
 
 def irccommand(cmd, cmdtext):
 	if cmd == 'help':
-		reply('hi')
+		reply('Currently available commands are: help, reload, join, part, later')
 	elif cmd == 'join':
 		joinchan(cmdtext.split(' ')[0])
 	elif cmd == 'part':
 		partchan(cmdtext.split(' ')[0])
 	elif cmd == 'later':
-		if len(cmdtext.split(' ')) < 2:
-			reply('Command has too few arguments.')
+		if cmdtext[:5] == 'tell ':
+			if len(cmdtext.split(' ')) < 3:
+				reply('Command has too few arguments.')
+			else:
+				irccommand(cmd, cmdtext[5:])
 		else:
-			temp = cmdtext.split(' ')
-			later_nick = temp[0]
-			later_msg = ' '.join(temp[1:])
-			util.add_later(later_nick, util.get_nick(user), later_msg)
-			reply('Message to '+later_nick+' recorded.')
+			if len(cmdtext.split(' ')) < 2:
+				reply('Command has too few arguments.')
+			else:
+				temp = cmdtext.split(' ')
+				later_nick = temp[0]
+				later_msg = ' '.join(temp[1:])
+				util.add_later(later_nick, util.get_nick(user), later_msg)
+				reply('Message to '+later_nick+' recorded.')
 	else:
 		reply('Invalid command.')

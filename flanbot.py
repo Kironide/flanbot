@@ -1,6 +1,6 @@
 def main(botnick, server, channels):
 	import socket
-	import modules, util
+	import functions, util
 	from time import sleep
 	pre = '~'
 
@@ -10,14 +10,14 @@ def main(botnick, server, channels):
 	channels = channels.split(',')
 
 	ircsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	modules.ircsock = ircsock
+	functions.ircsock = ircsock
 	ircsock.connect((server, 6667))
 	ircsock.send('USER '+botnick+' '+botnick+' '+botnick+' :test\n')
 	ircsock.send('NICK '+botnick+'\n')
 
 	sleep(3) # otherwise sometimes it doesn't work
 	for chan in channels:
-		modules.joinchan('#'+chan)
+		functions.joinchan('#'+chan)
 
 	loaded = False
 
@@ -39,46 +39,46 @@ def main(botnick, server, channels):
 			msgtext = ' '.join(msg[3:len(msg)])[1:]
 
 			# give the module the variables
-			modules.user = msguser
-			modules.dtype = msgtype
-			modules.target = msgtarget
+			functions.user = msguser
+			functions.dtype = msgtype
+			functions.target = msgtarget
 
 			try:
 				# check for command with prefix
 				if msgtext[0] == pre:
 					cmd = msgtext.split(' ')[0][1:]
 					if cmd == 'reload':
-						reload(modules)
+						reload(functions)
 						reload(util)
-						modules.reply('Reloaded modules.')
+						functions.reply('Reloaded.')
 					else:
 						cmdtext = msgtext[1+len(pre)+len(cmd):len(msgtext)]
-						modules.irccommand(cmd, cmdtext)
+						functions.irccommand(cmd, cmdtext)
 
 			except Exception, e:
 				print(e)
-				modules.reply(e)
+				functions.reply(e)
 				continue
 
 		# checks for a later message to send upon PRIVMSG or JOIN
 		if len(msg) >= 3 and (msg[1] == 'PRIVMSG' or msg[1] == 'JOIN'):
 			try:
-				modules.user = msg[0][1:]
-				modules.dtype = msg[1]
-				modules.target = msg[2]
+				functions.user = msg[0][1:]
+				functions.dtype = msg[1]
+				functions.target = msg[2]
 
 				# sends later messages
-				found = modules.check_later(nick, later)
+				found = functions.check_later(nick, later)
 				if found:
 					later = util.get_later()
 			except Exception, e:
 				print(e)
-				modules.reply(e)
+				functions.reply(e)
 				continue
 
 
 		if ircmsg.find('PING :') != -1:
-			modules.ping()
+			functions.ping()
 
 def maintest(x):
 	while 1:
