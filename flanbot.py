@@ -1,37 +1,44 @@
-def main():
-	import socket
-	import functions, util, init
-	from time import sleep
-	pre = '~'
+import socket, functions, util, init
+from time import sleep
 
-	# load data from init.cfg
-	botnick = init.botnick
-	initservers = init.initservers
+PREFIX = '~'
+
+# returns socket connection to IRC server
+def get_socket(server, port=6667):
+	ircsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	functions.ircsock = ircsock
+	ircsock.connect((server, 6667))
+	ircsock.send('USER '+init.botnick+' '+init.botnick+' '+init.botnick+' :Flandre\n')
+	ircsock.send('NICK '+init.botnick+'\n')
+	ircsock.setblocking(0) # very important!!!
+	return ircsock
+
+if __name__ == '__main__':
+	# start connections to all of the IRC servers in init settings
 	ircsocks = []
-	for server,channels in initservers.items():
-		ircsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		functions.ircsock = ircsock
-		ircsock.connect((server, 6667))
-		ircsock.send('USER '+botnick+' '+botnick+' '+botnick+' :test\n')
-		ircsock.send('NICK '+botnick+'\n')
-		ircsock.setblocking(0) # THIS IS IMPORTANT!!!
-
+	for server,channels in init.servers.items():
+		ircsock = get_socket(server)
 		sleep(3) # if i join channels too fast it doesn't work sometimes
 		for chan in channels:
 			functions.joinchan(chan)
 		ircsocks.append(ircsock)
 
-	# load later data
+	# load data for the 'later' command
 	later = util.get_later()
 	loaded = False
 
 	while 1:
+		# reload the data for the 'later' command
+		# I don't know why this is necessary
 		if not loaded:
 			later = util.get_later()
 
+		# loop through socket connections indefinitely
 		for i in range(len(ircsocks)):
 			ircsock = ircsocks[i]
 			functions.ircsock = ircsock
+
+			# receive data from server
 			try:
 				ircmsg = ircsock.recv(2048)
 			except:
@@ -41,7 +48,7 @@ def main():
 			msg = ircmsg.split(' ')
 			nick = util.get_nick(msg[0])
 
-			# block to run code for bot commands
+			# runs code for commands starting with PREFIX
 			if len(msg) >= 4 and msg[1] == 'PRIVMSG':
 				msguser = msg[0][1:]
 				msgtype = msg[1]
@@ -53,18 +60,27 @@ def main():
 				functions.dtype = msgtype
 				functions.target = msgtarget
 
+				# check for presence of prefix
 				try:
-					# check for command with prefix
-					if msgtext[0] == pre:
+					if msgtext[0] == PREFIX:
 						cmd = msgtext.split(' ')[0][1:]
+
+						# reload modules
 						if cmd == 'reload':
 							reload(functions)
 							reload(util)
 							functions.reply('Reloaded.')
-						else:
-							cmdtext = msgtext[1+len(pre)+len(cmd):len(msgtext)]
-							functions.irccommand(cmd, cmdtext)
 
+						# create a new socket and add it to the list
+						elif cmd == 'server':
+							cmdtext = msgtext[1+len(PREFIX)+len(cmd):len(msgtext)]
+							ircsocket = get_socket(cmdtext)
+							ircsocks.append(ircsocket)
+
+						# pass the command over to the functions module
+						else:
+							cmdtext = msgtext[1+len(PREFIX)+len(cmd):len(msgtext)]
+							functions.irccommand(cmd, cmdtext)
 				except Exception, e:
 					print(e)
 					functions.reply(e)
@@ -86,13 +102,6 @@ def main():
 					functions.reply(e)
 					continue
 
-
+			# reply to server pings
 			if ircmsg.find('PING :') != -1:
 				functions.ping()
-
-def maintest(x):
-	while 1:
-		print str(x)
-
-if __name__ == '__main__':
-	main()

@@ -1,8 +1,10 @@
 import os, pickle, time, math
 
+# returns just the nick from stuff!idk@whatever
 def get_nick(user):
 	return user.split('!')[0].replace(':','')
 
+# returns the formatted time difference between a timestamp and current time
 def timediff(ts):
 	diff = int(time.time())- int(ts)
 	if diff < 60:
@@ -19,6 +21,9 @@ def timediff(ts):
 	hours = hours - days*24
 	return str(int(days))+'d'+str(int(hours))+'h ago'
 
+######################################
+# STUFF RELATED TO THE LATER COMMAND #
+######################################
 
 # returns the pickled object in later.dat
 # creates file with empty dict if it doesn't exist

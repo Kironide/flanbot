@@ -1,4 +1,5 @@
 botnick = 'flanfly'
-initservers = {}
-initservers['nucleus.kafuka.org'] = ['#fraxy']
-initservers['irc.rizon.net'] = ['#flantest','#neritic-net']
+servers = {}
+servers['nucleus.kafuka.org'] = ['#fraxy']
+servers['irc.rizon.net'] = ['#flantest','#neritic-net']
+#servers['irc.efnet.nl'] = []

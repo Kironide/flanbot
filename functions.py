@@ -2,6 +2,7 @@ import re, random
 import util
 global ircsock, user, dtype, target
 
+# a random thing to append to the end of messages
 def randext():
 	r = random.randint(1,12)
 	if r == 1:
@@ -61,6 +62,7 @@ def check_later(nick, later):
 		return True
 	return False
 
+# handles commands of various sorts
 def irccommand(cmd, cmdtext):
 	if cmd == 'help':
 		reply('Currently available commands are: help, reload, join, part, later')
