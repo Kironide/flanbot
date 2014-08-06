@@ -8,7 +8,7 @@ def get_socket(server, port=6667):
 	ircsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	functions.ircsock = ircsock
 	ircsock.connect((server, 6667))
-	ircsock.send('USER '+init.botnick+' '+init.botnick+' '+init.botnick+' :Flandre\n')
+	ircsock.send('USER '+init.botnick+' '+init.botnick+' '+init.botnick+' :'+init.realname+'\n')
 	ircsock.send('NICK '+init.botnick+'\n')
 	ircsock.setblocking(0) # very important!!!
 	return ircsock
@@ -16,23 +16,18 @@ def get_socket(server, port=6667):
 if __name__ == '__main__':
 	# start connections to all of the IRC servers in init settings
 	ircsocks = []
+	serverof = {} # dictionary mapping sock -> server
 	for server,channels in init.servers.items():
 		ircsock = get_socket(server)
 		sleep(3) # if i join channels too fast it doesn't work sometimes
 		for chan in channels:
 			functions.joinchan(chan)
 		ircsocks.append(ircsock)
-
-	# load data for the 'later' command
-	later = util.get_later()
-	loaded = False
+		serverof[ircsock] = server
+	functions.serverof = serverof
+	functions.loaded = False
 
 	while 1:
-		# reload the data for the 'later' command
-		# I don't know why this is necessary
-		if not loaded:
-			later = util.get_later()
-
 		# loop through socket connections indefinitely
 		for i in range(len(ircsocks)):
 			ircsock = ircsocks[i]
@@ -69,13 +64,25 @@ if __name__ == '__main__':
 						if cmd == 'reload':
 							reload(functions)
 							reload(util)
+							functions.loaded = False
 							functions.reply('Reloaded.')
 
 						# create a new socket and add it to the list
 						elif cmd == 'server':
 							cmdtext = msgtext[1+len(PREFIX)+len(cmd):len(msgtext)]
-							ircsocket = get_socket(cmdtext)
-							ircsocks.append(ircsocket)
+							ircsock = get_socket(cmdtext)
+							ircsocks.append(ircsock)
+							serverof[ircsock] = cmdtext
+							functions.serverof = serverof
+
+						# leaves a server
+						elif cmd == 'quit':
+							cmdtext = msgtext[1+len(PREFIX)+len(cmd):len(msgtext)]
+							if len(cmdtext) == 0:
+								functions.quit()
+							else:
+								functions.quit(cmdtext)
+							ircsocks.remove(ircsock)
 
 						# pass the command over to the functions module
 						else:
@@ -86,21 +93,8 @@ if __name__ == '__main__':
 					functions.reply(e)
 					continue
 
-			# checks for a later message to send upon PRIVMSG or JOIN
-			if len(msg) >= 3 and (msg[1] == 'PRIVMSG' or msg[1] == 'JOIN'):
-				try:
-					functions.user = msg[0][1:]
-					functions.dtype = msg[1]
-					functions.target = msg[2]
-
-					# sends later messages
-					found = functions.check_later(nick, later)
-					if found:
-						later = util.get_later()
-				except Exception, e:
-					print(e)
-					functions.reply(e)
-					continue
+			# stuff that should be performed every time
+			functions.run_every_time(msg)
 
 			# reply to server pings
 			if ircmsg.find('PING :') != -1:

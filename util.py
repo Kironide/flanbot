@@ -101,3 +101,14 @@ def count_later(nick, user, msg):
 				if msg == item[2] and user.lower() == item[1].lower():
 					times += 1
 	return times
+
+#####################################
+# STUFF RELATED TO THE SEEN COMMAND #
+#####################################
+
+# save data about someone
+def save_seen(nick, type, msg=''):
+	# create data file if it doesn't exist
+	if not os.path.exists('seen.dat'):
+		with open('seen.dat','w') as f:
+			test = 1

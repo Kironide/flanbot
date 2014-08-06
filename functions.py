@@ -1,6 +1,6 @@
-import re, random
+import re, random, requests
 import util
-global ircsock, user, dtype, target
+global ircsock, serverof, user, dtype, target, later, loaded
 
 # a random thing to append to the end of messages
 def randext():
@@ -51,16 +51,27 @@ def joinchan(chan):
 def partchan(chan):
 	ircsock.send('PART '+chan+'\n')
 
+def quit(msg='Quitting.'):
+	ircsock.send('QUIT '+msg+'\n')
+
+# gets google calc result
+def calc(query):
+	return 'This function is not implemented yet.'
+
 # checks for msgs
-def check_later(nick, later):
+def check_later(nick):
+	global later
 	if util.in_later(nick,later):
-		print('found')
 		messages = util.read_later(nick)
 		for msg in messages:
-			reply(msg+' '*random.randint(1,9))
+			reply(msg)
 		util.remove_later(nick)
 		return True
 	return False
+
+# records seen data
+def record_seen(text):
+	a = 1# do nothing
 
 # handles commands of various sorts
 def irccommand(cmd, cmdtext):
@@ -70,6 +81,12 @@ def irccommand(cmd, cmdtext):
 		joinchan(cmdtext.split(' ')[0])
 	elif cmd == 'part':
 		partchan(cmdtext.split(' ')[0])
+	elif cmd == 'msg':
+		recipient = cmdtext.split(' ')[0]
+		message = ' '.join(cmdtext.split(' ')[1:])
+		sendmsg(recipient, message)
+	elif cmd == 'calc':
+		reply(calc(cmdtext))
 	elif cmd == 'later':
 		if cmdtext[:5] == 'tell ':
 			if len(cmdtext.split(' ')) < 3:
@@ -89,7 +106,51 @@ def irccommand(cmd, cmdtext):
 					add = util.add_later(later_nick, util.get_nick(user), later_msg)
 					if add:
 						reply('Message to '+later_nick+' recorded'+randext())
+						global later
+						later = util.get_later()
 					else:
 						reply('You\'ve already sent that message three times already'+randext())
 	else:
 		reply('Invalid command.')
+
+# stuff that should run every iteration of the loop
+def run_every_time(msg):
+	global later, loaded
+
+	# check for existence of later info
+	if not loaded:
+		later = util.get_later()
+		loaded = True
+
+	# checks for validity of various conditions given an irc event
+	conditions = {
+	'later': len(msg) >= 3 and (msg[1] == 'PRIVMSG' or msg[1] == 'JOIN'),
+	'seen': len(msg) >= 3 and msg[1] in ['PRIVMSG','QUIT','PART','JOIN']
+	}
+	for event,condition in conditions.items():
+		if condition:
+			event_action(msg, event)
+
+# stuff for the above
+def event_action(msg, event):
+	try:
+		# checks for a later message to send upon PRIVMSG or JOIN
+		if event == 'later':
+			user = msg[0][1:]
+			dtype = msg[1]
+			target = msg[2]
+			nick = util.get_nick(user)
+
+			found = check_later(nick)
+			if found:
+				later = util.get_later()
+
+		# records messages/quits/parts/joins for seen command data
+		elif event == 'seen':
+			user = msg[0][1:]
+			dtype = msg[1]
+			target = msg[2]
+			text = ' '.join(msg[3:])[1:]
+			record_seen(text)
+	except Exception, e:
+		print(e)
