@@ -90,24 +90,29 @@ def irccommand(cmd, cmdtext):
 		reply(calc(cmdtext))
 	elif cmd == 'rthread':
 		s = requests.Session()
-		try:
-			cat = json.loads(s.get('http://a.4cdn.org/'+cmdtext+'/catalog.json').text)
-			threads = []
-			for page in cat:
-				for thread in page['threads']:
-					threads.append(thread)
-			rthread = threads[random.randint(1,len(threads))-1]
-			if 'sub' in rthread:
-				subj = rthread['sub']
-			else:
-				subj = 'None'
-			post = format_html_entities(strip_tags(rthread['com'].replace('<br>','\n')))[0:150]
-			if len(post) > 150:
-				post = post + '...'
-			reply('http://boards.4chan.org/'+cmdtext+'/thread/'+str(rthread['no'])+' Subject: '+subj+', Post: '+post)
-		except Exception, e:
-			reply('Invalid board selection.')
-			print(e)
+		if cmdtext == '':
+			boards = json.loads(s.get('http://a.4cdn.org/boards.json').text)['boards']
+			rboard = boards[random.randint(1,len(boards))-1]['board']
+			irccommand(cmd, rboard)
+		else:
+			try:
+				cat = json.loads(s.get('http://a.4cdn.org/'+cmdtext.split(' ')[0]+'/catalog.json').text)
+				threads = []
+				for page in cat:
+					for thread in page['threads']:
+						threads.append(thread)
+				rthread = threads[random.randint(1,len(threads))-1]
+				if 'sub' in rthread:
+					subj = rthread['sub'].encode('utf-8')
+				else:
+					subj = 'None'
+				post = format_html_entities(strip_tags(rthread['com'].replace('<br>',' '))).encode('utf-8')
+				if len(post) > 150:
+					post = post[:150] + '...'
+				reply('http://boards.4chan.org/'+cmdtext+'/thread/'+str(rthread['no'])+' Subject: '+subj+', Post: '+post)
+			except Exception, e:
+				reply('Invalid board selection.')
+				print(e)
 	elif cmd == 'later':
 		if cmdtext[:5] == 'tell ':
 			if len(cmdtext.split(' ')) < 3:
