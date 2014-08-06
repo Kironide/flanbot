@@ -8,6 +8,7 @@ def get_socket(server, port=6667):
 	ircsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 	functions.ircsock = ircsock
 	ircsock.connect((server, 6667))
+	sleep(2) # wait for connection to fully establish
 	ircsock.send('USER '+init.botnick+' '+init.botnick+' '+init.botnick+' :'+init.realname+'\n')
 	ircsock.send('NICK '+init.botnick+'\n')
 	ircsock.setblocking(0) # very important!!!

@@ -1,36 +1,36 @@
-import re, random, requests
+import re, random, requests, json, HTMLParser
 import util
+from BeautifulSoup import BeautifulSoup as bs4
 global ircsock, serverof, user, dtype, target, later, loaded
 
 # a random thing to append to the end of messages
 def randext():
-	r = random.randint(1,12)
-	if r == 1:
-		return '.'
-	elif r == 2:
-		return '...'
-	elif r == 3:
-		return '!'
-	elif r == 4:
-		return ', probably.'
-	elif r == 5:
-		return ', I think.'
-	elif r == 6:
-		return '. Remember, bullying is bad!'
-	elif r == 7:
-		return '. Bullies will be the first against the wall!'
-	elif r == 8:
-		return ', more or less.'
-	elif r == 9:
-		return '. Did you know Plato was the first anti-bully?'
-	elif r == 10:
-		return '. Transform: Anti-Bully Ranger!'
-	elif r == 10:
-		return '. Are you living the NEET life yet?'
-	elif r == 11:
-		return '. Are you living the literary life yet?'
-	elif r == 12:
-		return '. Hello, please respond...'
+	responses = [
+	'.',
+	'...',
+	'!',
+	', probably.',
+	', I think.',
+	', I think.',
+	'. Remember, bullying is bad!',
+	'. Bullies will be the first against the wall!'
+	', more or less.',
+	'. Did you know Plato was the first anti-bully?',
+	'. Transform: Anti-Bully Ranger!',
+	'. Are you living the NEET life yet?',
+	'. Are you living the literary life yet?',
+	'. Hello, please respond...'
+	]
+	return responses[random.randint(1,len(responses))-1]
+
+# strip tags from HTML content
+def strip_tags(html):
+	return ''.join(bs4(html).findAll(text=True))
+
+# formats html entitites
+def format_html_entities(html):
+	h = HTMLParser.HTMLParser()
+	return h.unescape(html)
 
 def ping():
 	ircsock.send('PONG :pingis\n')
@@ -75,8 +75,9 @@ def record_seen(text):
 
 # handles commands of various sorts
 def irccommand(cmd, cmdtext):
+	cmd = cmd.lower()
 	if cmd == 'help':
-		reply('Currently available commands are: help, reload, join, part, later')
+		reply('Currently available commands are: help, reload, join, part, later, rthread')
 	elif cmd == 'join':
 		joinchan(cmdtext.split(' ')[0])
 	elif cmd == 'part':
@@ -87,6 +88,26 @@ def irccommand(cmd, cmdtext):
 		sendmsg(recipient, message)
 	elif cmd == 'calc':
 		reply(calc(cmdtext))
+	elif cmd == 'rthread':
+		s = requests.Session()
+		try:
+			cat = json.loads(s.get('http://a.4cdn.org/'+cmdtext+'/catalog.json').text)
+			threads = []
+			for page in cat:
+				for thread in page['threads']:
+					threads.append(thread)
+			rthread = threads[random.randint(1,len(threads))-1]
+			if 'sub' in rthread:
+				subj = rthread['sub']
+			else:
+				subj = 'None'
+			post = format_html_entities(strip_tags(rthread['com'].replace('<br>','\n')))[0:150]
+			if len(post) > 150:
+				post = post + '...'
+			reply('http://boards.4chan.org/'+cmdtext+'/thread/'+str(rthread['no'])+' Subject: '+subj+', Post: '+post)
+		except Exception, e:
+			reply('Invalid board selection.')
+			print(e)
 	elif cmd == 'later':
 		if cmdtext[:5] == 'tell ':
 			if len(cmdtext.split(' ')) < 3:
