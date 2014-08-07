@@ -85,7 +85,7 @@ def auth():
 def ping(msg='pingis'):
 	response = 'PONG :'+msg+'\n'
 	ircsock.send(response)
-	print('Responded to ping request with: '+response)
+	print('Responded to ping request with: '+response.strip())
 
 def sendmsg(chan, msg):
 	ircsock.send('PRIVMSG '+chan+' :'+str(msg)+'\n')

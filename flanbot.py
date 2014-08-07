@@ -19,13 +19,19 @@ if __name__ == '__main__':
 	serverof = {} # dictionary mapping sock -> server
 	for server,channels in init.servers.items():
 		ircsock = get_socket(server)
-		sleep(3) # if i join channels too fast it doesn't work sometimes
-		for chan in channels:
-			util.joinchan(chan)
 		ircsocks.append(ircsock)
 		serverof[ircsock] = server
 	util.serverof = serverof
 	functions.loaded = False
+
+	# join initial channels
+	sleep(3) # wait a bit before joining channels
+	for server,channels in init.servers.items():
+		for ircsock in ircsocks:
+			if serverof[ircsock] == server:
+				util.ircsock = ircsock
+				for chan in channels:
+					util.joinchan(chan)
 
 	while 1:
 		# loop through socket connections indefinitely
