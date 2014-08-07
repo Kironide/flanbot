@@ -32,41 +32,18 @@ def run_every_time(msg):
 	}
 	for event,condition in conditions.items():
 		if condition and ircmask_nick(msg[0]) != settings.botnick:
-			event_action(msg, event)
+			exec_cmd(event,' '.join(msg),settings.folder_events)
 
-# stuff for the above
-def event_action(msg, event):
-	try:
-		# checks for a later message to send upon PRIVMSG or JOIN
-		if event == 'later':
-			c_mask = msg[0][1:]
-			c_dtype = msg[1]
-			c_target = msg[2]
-			nick = current_nick()
-
-			found = later_check(nick)
-			if found:
-				later = get_later()
-
-		# records messages/quits/parts/joins for seen command data
-		elif event == 'seen':
-			c_mask = msg[0][1:]
-			c_dtype = msg[1]
-			c_target = msg[2]
-			text = ' '.join(msg[3:])[1:]
-			seen_record(text)
-	except Exception, e:
-		print(e)
-
-def exec_cmd(cmd,cmdtext,folder):
+def exec_cmd(modname,inputstr,folder):
 	pref = ''
 	if folder == settings.folder_mods:
 		pref = settings.prefix_mods
-	
-	path = folder+'/'+pref+cmd+'.py'
-	print('Loading mod from: '+path)
-	mod = imp.load_source(cmd,path)
-	mod.main(cmdtext)
+	elif folder == settings.folder_events:
+		pref = settings.prefix_events
+	path = folder+'/'+pref+modname+'.py'
+	print('Loading module from: '+path)
+	mod = imp.load_source(modname,path)
+	mod.main(inputstr)
 
 # handles commands of various sorts
 def irccommand(cmd, cmdtext, sock=None):
