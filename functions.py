@@ -88,22 +88,23 @@ def record_seen(text):
 def irccommand(cmd, cmdtext, get_commands=False):
 	cmds_normal = ['help','join','part','msg','rthread','later','msg']
 	cmds_special = ['reload','server','quit']
+	cmds_secure = ['part','msg']
+	cmds_disabled = []
+	
 	cmds_all = list(set(cmds_normal) | set(cmds_special))
-	auth_needed = ['part','msg']
-	disabled = []
 
 	# returns list of commands
 	if get_commands:
 		return cmds_all
 
 	# don't want random people spamming stuff
-	if cmd in auth_needed:
+	if cmd in cmds_secure:
 		if not auth():
 			reply_safe('You are not authorized for that command.')
 			return
 
 	# easy check for disabled commands
-	if cmd in disabled:
+	if cmd in cmds_disabled:
 		reply_safe('That command is turned off.')
 		return
 
@@ -112,7 +113,7 @@ def irccommand(cmd, cmdtext, get_commands=False):
 
 	if cmd == 'help':
 		if cmdtext == '':
-			reply_safe('Currently available commands are: help, reload, server, quit, join, part, later, rthread. Type '+init.prefix+'help [command] for a detailed description.')
+			reply_safe('Currently available commands are: '+', '.join(cmds_all)+'. Type '+init.prefix+'help [command] for a detailed description.')
 		else:
 			help_text = {
 			'help': 'Syntax: help [optional: command]. Displays help.',
