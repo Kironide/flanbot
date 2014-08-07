@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import socket, functions, util, settings
+import socket, util, settings
 from time import sleep
 
 # returns socket connection to IRC server
@@ -22,7 +22,7 @@ if __name__ == '__main__':
 		ircsocks.append(ircsock)
 		serverof[ircsock] = server
 	util.serverof = serverof
-	functions.loaded = False
+	util.loaded = False
 
 	# join initial channels
 	sleep(5) # wait a bit before joining channels
@@ -55,7 +55,7 @@ if __name__ == '__main__':
 			nick = util.get_nick(msg[0])
 
 			# stuff that should be performed every time
-			functions.run_every_time(msg)
+			util.run_every_time(msg)
 
 			# runs code for commands starting with settings.prefix
 			if len(msg) >= 4 and msg[1] == 'PRIVMSG':
@@ -77,9 +77,8 @@ if __name__ == '__main__':
 
 						# reload modules
 						if cmd == 'reload':
-							reload(functions)
 							reload(util)
-							functions.loaded = False
+							util.loaded = False
 							util.reply_safe('Reloaded.')
 
 						# create a new socket and add it to the list
@@ -102,10 +101,10 @@ if __name__ == '__main__':
 								serverof.pop(ircsock,None)
 								util.serverof = serverof
 
-						# pass the command over to the functions module
+						# pass the command over
 						else:
 							cmdtext = msgtext[1+len(settings.prefix)+len(cmd):len(msgtext)]
-							functions.irccommand(cmd, cmdtext)
+							util.irccommand(cmd, cmdtext, sock=ircsock)
 				except Exception, e:
 					print('Error in flanbot.py.')
 					print(e)

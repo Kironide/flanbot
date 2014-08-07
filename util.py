@@ -1,6 +1,178 @@
-import os, pickle, time, math, random, HTMLParser
+import os, imp, pickle, time, math, random, HTMLParser
+import settings
+from itertools import permutations
 from BeautifulSoup import BeautifulSoup as bs4
+from pyxdameraulevenshtein import damerau_levenshtein_distance as distance
+from pyxdameraulevenshtein import normalized_damerau_levenshtein_distance as norm_distance
+
 global ircsock, user, dtype, target, serverof
+global loaded, perm
+
+# stuff that should run every iteration of the loop
+def run_every_time(msg):
+	global loaded
+
+	# load initial data and stuff like that
+	if not loaded:
+		global perm
+
+		# calculate permutations of each command
+		cmds = cmds_all()
+		perm = {}
+		for cmd in cmds:
+			perm[cmd] = [''.join(p) for p in permutations(cmd)]
+
+		loaded = True
+
+
+	# checks for validity of various conditions given an irc event
+	conditions = {
+	'later': len(msg) >= 3 and (msg[1] == 'PRIVMSG' or msg[1] == 'JOIN'),
+	'seen': len(msg) >= 3 and msg[1] in ['PRIVMSG','QUIT','PART','JOIN']
+	}
+	for event,condition in conditions.items():
+		if condition and get_nick(msg[0]) != settings.botnick:
+			event_action(msg, event)
+
+# stuff for the above
+def event_action(msg, event):
+	try:
+		# checks for a later message to send upon PRIVMSG or JOIN
+		if event == 'later':
+			user = msg[0][1:]
+			dtype = msg[1]
+			target = msg[2]
+			nick = current_nick()
+
+			found = later_check(nick)
+			if found:
+				later = get_later()
+
+		# records messages/quits/parts/joins for seen command data
+		elif event == 'seen':
+			user = msg[0][1:]
+			dtype = msg[1]
+			target = msg[2]
+			text = ' '.join(msg[3:])[1:]
+			seen_record(text)
+	except Exception, e:
+		print(e)
+
+def exec_cmd(cmd,cmdtext,folder):
+	mod = imp.load_source(cmd,folder+'/'+cmd+'.py')
+	mod.main(cmdtext)
+
+# handles commands of various sorts
+def irccommand(cmd, cmdtext, sock=None):
+	if sock != None:
+		ircsock = sock
+
+	all_commands = cmds_all()
+	normal_commands = cmds_normal()
+
+	# don't want random people spamming stuff
+	if cmd in settings.cmds_secure:
+		if not auth():
+			reply_safe('You are not authorized for that command.')
+			return
+
+	# easy check for disabled commands
+	if cmd in settings.cmds_disabled:
+		reply_safe('That command is turned off.')
+		return
+
+	# checks for empty command
+	if cmd.strip() == '':
+		return
+
+	# execute the command
+	cmd = cmd.lower().strip()
+	cmdtext = cmdtext.strip()
+	if cmd in normal_commands:
+		exec_cmd(cmd,cmdtext,'flanmods')
+
+	# attempts to account for typos using Damerau-Levenshtein distance
+	else:
+		valid = []
+
+		# checks if a valid command is a substring of input
+		for cmd_other in all_commands:
+			if cmd_other in cmd:
+				valid.append(cmd_other)
+		# if one is found, then check if input begins with cmd
+		# if so, user probably did an accidental concatenation
+		if len(valid) == 1:
+			if cmd.startswith(valid[0]):
+				cmdtext = cmd[len(valid[0]):]+' '+cmdtext
+
+		# checks if D-L distance is 1
+		if len(valid) == 0:
+			for cmd_other in all_commands:
+				if distance(cmd,cmd_other) == 1:
+					valid.append(cmd_other)
+
+		# checks if D-L distance is 2 or norm. D-L distance <= 3
+		if len(valid) == 0:
+			for cmd_other in all_commands:
+				if distance(cmd,cmd_other) == 2 or norm_distance(cmd,cmd_other) <= 0.3:
+					valid.append(cmd_other)
+
+		# checks if a permutation of a valid command is a substring of input
+		if len(valid) == 0:
+			for cmd_other in all_commands:
+				for p in perm[cmd_other]:
+					if p in cmd and cmd_other not in valid:
+						valid.append(cmd_other)
+
+		# checks if a unique valid command starts with the input
+		if len(valid) == 0:
+			for cmd_other in all_commands:
+				if cmd_other.startswith(cmd):
+					valid.append(cmd_other)
+
+		# check if commands starts with substrings of input
+		# probably should be a last resort measure
+		substr_len = 1
+		while len(valid) == 0 and substr_len <= len(cmd):
+			substr_cmd = cmd[:substr_len]
+			for cmd_other in all_commands:
+				if cmd_other.startswith(substr_cmd):
+					valid.append(cmd_other)
+			substr_len += 1
+
+		# checks if D-L distance is 3
+		if len(valid) == 0:
+			for cmd_other in all_commands:
+				if distance(cmd,cmd_other) == 3:
+					valid.append(cmd_other)
+
+		# checks if there is a permutation with D-L distance of 1
+		if len(valid) == 0:
+			for cmd_other in all_commands:
+				for p in perm[cmd_other]:
+					if distance(p,cmd) == 1 and cmd_other not in valid:
+						valid.append(cmd_other)
+
+		# if there are multiple valid commands found, choose the one that starts
+		# with same letter as input (if unique)
+		if len(valid) > 1:
+			to_remove = []
+			for cmd_temp in valid:
+				if cmd_temp[0] != cmd[0]:
+					to_remove.append(cmd_temp)
+			for cmd_temp in to_remove:
+				valid.remove(cmd_temp)
+
+		# if unique match found, then use that command
+		if len(valid) == 1:
+			reply_safe('I\'ll interpret that command as \''+valid[0]+'\'. Maybe you made a typo.')
+			if valid[0] in normal_commands:
+				irccommand(valid[0], cmdtext)
+			else:
+				sendmsg(settings.botnick,settings.prefix+valid[0]+' '+cmdtext)
+			return
+		# reply_safe('Invalid command.') # no need to spam invalid cmd message
+		return
 
 # returns the formatted time difference between a timestamp and current time
 def timediff(ts):
@@ -198,7 +370,9 @@ def later_count(nick, user, msg):
 	return times
 
 # checks for msgs
-def later_check(nick, later):
+def later_check(nick, later=None):
+	if later == None:
+		later = get_later()
 	if later_contains(nick,later):
 		messages = later_read(nick)
 		for msg in messages:
