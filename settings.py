@@ -1,7 +1,8 @@
 botnick = 'flanfly'
 realname = 'Flandre Scarlet'
 prefix = '~'
-TEST = True
+logfile = 'flanlog.log'
+TEST = False
 
 cmds_secure = ['part','msg','raw']
 cmds_disabled = []
@@ -15,7 +16,7 @@ folder_events = 'events'
 servers = {}
 if not TEST:
 	servers['nucleus.kafuka.org'] = ['#fraxy']
-	servers['irc.rizon.net'] = ['#flantest','#neritic-net']
-	#servers['irc.umich.edu'] = ['#snifit']
+	servers['irc.rizon.io'] = ['#flantest','#neritic-net']
+	servers['irc.arcti.ca'] = ['#snifit']
 else:
 	servers['irc.rizon.net'] = ['#flantest']

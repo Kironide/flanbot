@@ -15,7 +15,8 @@ def main(cmdtext):
 		'part': 'Syntax: part [channel]. Parts the specified channel.',
 		'later': 'Syntax: later [optional: tell] [nick] [message]. Leaves a message for [nick] when they join or say something.',
 		'rthread': 'Syntax: rthread [optional: board]. Gets a random thread from a specified 4chan board or from a random board if unspecified.',
-		'raw': 'Syntax: raw [data]. Sends data directly to the IRC socket.'
+		'raw': 'Syntax: raw [data]. Sends data directly to the IRC socket.',
+		'joininit': 'Syntax: joininit. Rejoins the channels specified in the settings.'
 		}
 		for cmd_temp,value in help_text.items():
 			help_text[cmd_temp] = help_text[cmd_temp].replace('Syntax: ','Syntax: '+settings.prefix)

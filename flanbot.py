@@ -25,7 +25,7 @@ if __name__ == '__main__':
 	util.loaded = False
 
 	# join initial channels
-	sleep(5) # wait a bit before joining channels
+	sleep(3) # wait a bit before joining channels
 	for server,channels in settings.servers.items():
 		for ircsock in ircsocks:
 			if serverof[ircsock] == server:
@@ -46,21 +46,21 @@ if __name__ == '__main__':
 				continue # if there is no data to read
 			ircmsg = ircmsg.strip('\n\r')
 			print(ircmsg)
-			msg = ircmsg.split(' ')
 
-			# write output to log file
-			with open('flanlog.log','a') as f:
+			# write irc messages to a log file
+			with open(settings.logfile,'a') as f:
 				f.write(ircmsg+'\n')
 
 			# stuff that should be performed every time
-			util.run_every_time(msg)
+			util.run_before(ircmsg)
 
 			# runs code for commands starting with settings.prefix
-			if len(msg) >= 4 and msg[1] == 'PRIVMSG':
-				c_mask = msg[0][1:]
-				c_dtype = msg[1]
-				c_target = msg[2]
-				c_text = ' '.join(msg[3:len(msg)])[1:]
+			data = ircmsg.split(' ')
+			if util.ircmask_valid(data[0]) and data[1] == 'PRIVMSG':
+				c_mask = data[0][1:]
+				c_dtype = data[1]
+				c_target = data[2]
+				c_text = ' '.join(data[3:len(data)])[1:]
 
 				nick = util.ircmask_nick(c_mask)
 
@@ -105,14 +105,9 @@ if __name__ == '__main__':
 						else:
 							cmdtext = c_text[1+len(settings.prefix)+len(cmd):len(c_text)]
 							util.irccommand(cmd, cmdtext, sock=ircsock)
+
 				except Exception, e:
-					print('Error in flanbot.py.')
+					print('Encountered an exception.')
 					print(e)
 					util.reply(e)
 					continue
-
-			# reply to server pings
-			if ircmsg.find('PING :') != -1:
-				ping_msg = ircmsg.split('PING :')
-				ping_msg = ping_msg[len(ping_msg)-1].strip()
-				util.ping(ping_msg)

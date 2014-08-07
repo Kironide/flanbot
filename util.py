@@ -8,13 +8,25 @@ from pyxdameraulevenshtein import normalized_damerau_levenshtein_distance as nor
 global ircsock, serverof, c_mask, c_dtype, c_target
 global loaded, perm
 
+def exec_cmd(modname,inputstr,folder):
+	pref = ''
+	if folder == settings.folder_mods:
+		pref = settings.prefix_mods
+	elif folder == settings.folder_events:
+		pref = settings.prefix_events
+	path = folder+'/'+pref+modname+'.py'
+	# print('Loading module from: '+path) # this prints a lot
+	mod = imp.load_source(modname,path)
+	mod.main(inputstr)
+
 # stuff that should run every iteration of the loop
-def run_every_time(msg):
+def run_before(ircmsg):
 	global loaded
 
 	# load initial data and stuff like that
 	if not loaded:
 		global perm
+		reload(settings)
 
 		# calculate permutations of each command
 		cmds = cmds_all()
@@ -24,26 +36,10 @@ def run_every_time(msg):
 
 		loaded = True
 
-
-	# checks for validity of various conditions given an irc event
-	conditions = {
-	'later': len(msg) >= 3 and (msg[1] == 'PRIVMSG' or msg[1] == 'JOIN'),
-	'seen': len(msg) >= 3 and msg[1] in ['PRIVMSG','QUIT','PART','JOIN']
-	}
-	for event,condition in conditions.items():
-		if condition and ircmask_nick(msg[0]) != settings.botnick:
-			exec_cmd(event,' '.join(msg),settings.folder_events)
-
-def exec_cmd(modname,inputstr,folder):
-	pref = ''
-	if folder == settings.folder_mods:
-		pref = settings.prefix_mods
-	elif folder == settings.folder_events:
-		pref = settings.prefix_events
-	path = folder+'/'+pref+modname+'.py'
-	print('Loading module from: '+path)
-	mod = imp.load_source(modname,path)
-	mod.main(inputstr)
+	# runs events
+	events = [x.replace('.py','')[len(settings.prefix_events):] for x in os.listdir(settings.folder_events+'/') if x.endswith('.py')]
+	for event in events:
+		exec_cmd(event,ircmsg,settings.folder_events)
 
 # handles commands of various sorts
 def irccommand(cmd, cmdtext, sock=None):
@@ -176,7 +172,7 @@ def timediff(ts):
 
 # returns a list of dynamically called modules
 def cmds_normal():
-	return [x.replace('.py','')[len(settings.prefix_mods):] for x in os.listdir('flanmods/') if x.endswith('.py')]
+	return [x.replace('.py','')[len(settings.prefix_mods):] for x in os.listdir(settings.folder_mods+'/') if x.endswith('.py')]
 
 # returns a list of undynamic commands
 def cmds_special():
@@ -273,6 +269,12 @@ def ircmask_split (mask):
 	nick, userhost = mask.split('!', 1)
 	user, host = userhost.split('@', 1)
 	return (nick.replace(':',''), user, host)
+def ircmask_valid(mask):
+	try:
+		temp = ircmask_split(mask)
+		return True
+	except:
+		return False
 def ircmask_nick(mask):
 	return ircmask_split(mask)[0]
 def ircmask_user(mask):
