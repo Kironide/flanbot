@@ -170,6 +170,10 @@ def irccommand(cmd, cmdtext):
 		for cmd_other in cmds_all:
 			if distance(cmd,cmd_other) == 1:
 				valid.append(cmd_other)
+		if len(valid) == 0:
+			for cmd_other in cmds_all:
+				if distance(cmd,cmd_other) == 2 or norm_distance(cmd,cmd_other) <= 0.3:
+					valid.append(cmd_other)
 		if len(valid) > 1:
 			to_remove = []
 			for cmd_temp in valid:
@@ -181,29 +185,8 @@ def irccommand(cmd, cmdtext):
 			if valid[0] in cmds_normal:
 				irccommand(valid[0], cmdtext)
 			else:
-				if valid[0] == 'reload':
-					reply_safe('Reloaded.')
 				sendmsg(init.botnick,init.prefix+valid[0]+' '+cmdtext)
 			return
-		if len(valid) == 0:
-			for cmd_other in cmds_all:
-				if distance(cmd,cmd_other) == 2 or norm_distance(cmd,cmd_other) <= 0.3:
-					valid.append(cmd_other)
-			if len(valid) > 1:
-				to_remove = []
-				for cmd_temp in valid:
-					if cmd_temp[0] != cmd[0]:
-						to_remove.append(cmd_temp)
-				for cmd_temp in to_remove:
-					valid.remove(cmd_temp)
-			if len(valid) == 1:
-				if valid[0] in cmds_normal:
-					irccommand(valid[0], cmdtext)
-				else:
-					if valid[0] == 'reload':
-						reply_safe('Reloaded.')
-					sendmsg(init.botnick,init.prefix+valid[0]+' '+cmdtext)
-				return
 		reply_safe('Invalid command.')
 
 # stuff that should run every iteration of the loop
