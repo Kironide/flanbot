@@ -1,9 +1,10 @@
 import re, random, requests, json, HTMLParser
 import init, util
+from itertools import permutations
 from BeautifulSoup import BeautifulSoup as bs4
 from pyxdameraulevenshtein import damerau_levenshtein_distance as distance
 from pyxdameraulevenshtein import normalized_damerau_levenshtein_distance as norm_distance
-global ircsock, serverof, user, dtype, target, later, loaded
+global ircsock, serverof, user, dtype, target, later, loaded, perm
 
 # a random thing to append to the end of messages
 def randext():
@@ -84,12 +85,16 @@ def record_seen(text):
 	asdf = True
 
 # handles commands of various sorts
-def irccommand(cmd, cmdtext):
+def irccommand(cmd, cmdtext, get_commands=False):
 	cmds_normal = ['help','join','part','msg','rthread','later','msg']
 	cmds_special = ['reload','server','quit']
 	cmds_all = list(set(cmds_normal) | set(cmds_special))
 	auth_needed = ['part','msg']
 	disabled = []
+
+	# returns list of commands
+	if get_commands:
+		return cmds_all
 
 	# don't want random people spamming stuff
 	if cmd in auth_needed:
@@ -168,11 +173,28 @@ def irccommand(cmd, cmdtext):
 		# attempts to account for typos using Damerau-Levenshtein distance
 		valid = []
 		for cmd_other in cmds_all:
-			if distance(cmd,cmd_other) == 1:
+			if cmd_other in cmd:
 				valid.append(cmd_other)
+		if len(valid) == 1:
+			if cmd.startswith(valid[0]):
+				cmdtext = cmd[len(valid[0]):]+' '+cmdtext
+		if len(valid) == 0:
+			for cmd_other in cmds_all:
+				if distance(cmd,cmd_other) == 1:
+					valid.append(cmd_other)
 		if len(valid) == 0:
 			for cmd_other in cmds_all:
 				if distance(cmd,cmd_other) == 2 or norm_distance(cmd,cmd_other) <= 0.3:
+					valid.append(cmd_other)
+		if len(valid) == 0:
+			global perm
+			for cmd_other in cmds_all:
+				for p in perm[cmd_other]:
+					if p in cmd and cmd_other not in valid:
+						valid.append(cmd_other)
+		if len(valid) == 0:
+			for cmd_other in cmds_all:
+				if cmd_other.startswith(cmd):
 					valid.append(cmd_other)
 		if len(valid) > 1:
 			to_remove = []
@@ -191,12 +213,23 @@ def irccommand(cmd, cmdtext):
 
 # stuff that should run every iteration of the loop
 def run_every_time(msg):
-	global later, loaded
+	global loaded
 
-	# check for existence of later info
+	# load initial data and stuff like that
 	if not loaded:
+		global later, perm
+
+		# load later.dat
 		later = util.get_later()
+
+		# calculate permutations of each command
+		cmds = irccommand('','',get_commands=True)
+		perm = {}
+		for cmd in cmds:
+			perm[cmd] = [''.join(p) for p in permutations(cmd)]
+
 		loaded = True
+
 
 	# checks for validity of various conditions given an irc event
 	conditions = {

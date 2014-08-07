@@ -8,7 +8,7 @@ def get_nick(user):
 def timediff(ts):
 	diff = int(time.time())- int(ts)
 	if diff < 60:
-		return 'just now'
+		return str(diff)+'s ago'
 	minutes = math.floor(diff/60.0)
 	seconds = diff - minutes*60
 	if minutes < 60:
