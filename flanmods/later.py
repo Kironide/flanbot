@@ -5,7 +5,7 @@ def main(cmdtext):
 		if len(cmdtext.split(' ')) < 3:
 			util.reply_safe('Command has too few arguments.')
 		else:
-			irccommand(cmd, cmdtext[5:])
+			main(cmdtext[5:])
 	else:
 		if len(cmdtext.split(' ')) < 2:
 			util.reply_safe('Command has too few arguments.')

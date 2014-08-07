@@ -5,12 +5,7 @@ To-do list:
 - socket connect server thing, get efnet to work
 - add url/yt info feature
 - maybe add smart server selection like ~server rizon connects to irc.rizon.net
-- move the html parsing methods to util
 - think about vowel-removal combinations for typo correction
-- figure out how to make plugins/ folder
-	- move ircsock-requiring methods to util
-	- move randext to util as well
-	- use http://stackoverflow.com/questions/13598035/importing-a-module-when-the-module-name-is-in-a-variable to figure this out
 	- 
 """
 
@@ -150,7 +145,7 @@ def run_every_time(msg):
 	'seen': len(msg) >= 3 and msg[1] in ['PRIVMSG','QUIT','PART','JOIN']
 	}
 	for event,condition in conditions.items():
-		if condition:
+		if condition and util.get_nick(msg[0]) != init.botnick:
 			event_action(msg, event)
 
 # stuff for the above
