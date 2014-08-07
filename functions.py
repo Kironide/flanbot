@@ -7,6 +7,11 @@ To-do list:
 - maybe add smart server selection like ~server rizon connects to irc.rizon.net
 - move the html parsing methods to util
 - think about vowel-removal combinations for typo correction
+- figure out how to make plugins/ folder
+	- move ircsock-requiring methods to util
+	- move randext to util as well
+	- use http://stackoverflow.com/questions/13598035/importing-a-module-when-the-module-name-is-in-a-variable to figure this out
+	- 
 """
 
 import re, random, requests, json, HTMLParser
@@ -15,6 +20,7 @@ from itertools import permutations
 from BeautifulSoup import BeautifulSoup as bs4
 from pyxdameraulevenshtein import damerau_levenshtein_distance as distance
 from pyxdameraulevenshtein import normalized_damerau_levenshtein_distance as norm_distance
+
 global ircsock, serverof, user, dtype, target, later, loaded, perm
 
 # a random thing to append to the end of messages
@@ -34,7 +40,8 @@ def randext():
 	'. Are you living the NEET life yet?',
 	'. Are you living the literary life yet?',
 	'... Hello? Please respond!',
-	', you piece of shit.'
+	', you piece of shit.',
+	'. It can\'t be helped...'
 	]
 	return responses[random.randint(1,len(responses))-1]
 

@@ -21,6 +21,10 @@ def timediff(ts):
 	hours = hours - days*24
 	return str(int(days))+'d'+str(int(hours))+'h ago'
 
+#########################
+# IRC NETWORK FUNCTIONS #
+#########################
+
 ######################################
 # STUFF RELATED TO THE LATER COMMAND #
 ######################################
