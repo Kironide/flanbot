@@ -19,6 +19,18 @@ def timediff(ts):
 	hours = hours - days*24
 	return str(int(days))+'d'+str(int(hours))+'h ago'
 
+# returns a list of dynamically called modules
+def cmds_normal():
+	return [x.replace('.py','') for x in os.listdir('flanmods/') if x.endswith('py')]
+
+# returns a list of undynamic commands
+def cmds_special():
+	return ['reload','server','quit']
+
+# returns a list of all mods
+def cmds_all():
+	return list(set(cmds_normal()) | set(cmds_special()))
+
 ################
 # HTML PARSING #
 ################
@@ -124,8 +136,8 @@ def save_later(later):
 # adds a msg to send to the later object
 # nick is the person to send to
 # user is the person who sent it
-def add_later(nick, user, msg):
-	times = count_later(nick, user, msg)
+def later_add(nick, user, msg):
+	times = later_count(nick, user, msg)
 	if times >= 3:
 		return False
 	later = get_later()
@@ -136,7 +148,7 @@ def add_later(nick, user, msg):
 	return True
 
 # removes a user from the later object
-def remove_later(nick):
+def later_remove(nick):
 	later = get_later()
 	to_remove = []
 	for nick_later,msgs in later.items():
@@ -147,7 +159,7 @@ def remove_later(nick):
 	save_later(later)
 
 # gets a list of messages to send for a certain nick
-def read_later(nick):
+def later_read(nick):
 	later = get_later()
 	rawmsg = []
 	for nick_later,msgs in later.items():
@@ -161,7 +173,7 @@ def read_later(nick):
 	return to_send
 
 # returns true if nick is in later
-def in_later(nick, later=None):
+def later_contains(nick, later=None):
 	if later == None:
 		later = get_later()
 	for nick_later,msgs in later.items():
@@ -170,7 +182,7 @@ def in_later(nick, later=None):
 	return False
 
 # number of times a message is recorded for someone
-def count_later(nick, user, msg):
+def later_count(nick, user, msg):
 	later = get_later()
 	times = 0
 	for nick_later,msgs in later.items():
@@ -180,13 +192,27 @@ def count_later(nick, user, msg):
 					times += 1
 	return times
 
+# checks for msgs
+def later_check(nick, later):
+	if later_contains(nick,later):
+		messages = later_read(nick)
+		for msg in messages:
+			reply(msg)
+		later_remove(nick)
+		return True
+	return False
+
 #####################################
 # STUFF RELATED TO THE SEEN COMMAND #
 #####################################
 
 # save data about someone
-def save_seen(nick, type, msg=''):
+def seen_save(nick, type, msg=''):
 	# create data file if it doesn't exist
 	if not os.path.exists('seen.dat'):
 		with open('seen.dat','w') as f:
 			test = 1
+
+# records seen data
+def seen_record(text):
+	asdf = True

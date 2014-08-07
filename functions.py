@@ -14,7 +14,7 @@ To-do list:
 	- 
 """
 
-import re, random, requests, json
+import sys
 import init, util
 from itertools import permutations
 from pyxdameraulevenshtein import damerau_levenshtein_distance as distance
@@ -22,31 +22,27 @@ from pyxdameraulevenshtein import normalized_damerau_levenshtein_distance as nor
 
 global later, loaded, perm
 
-# checks for msgs
-def check_later(nick):
-	global later
-	if util.in_later(nick,later):
-		messages = util.read_later(nick)
-		for msg in messages:
-			util.reply(msg)
-		util.remove_later(nick)
-		return True
-	return False
+def execute_command(cmd,cmdtext):
+	path = sys.path
+	sys.path.append('flanmods/')
+	mod = __import__(cmd)
+	reload(mod)
+	mod.main(cmdtext)
+	sys.path = path
 
-# records seen data
-def record_seen(text):
-	asdf = True
+	if cmd == 'later':
+		global later
+		later = util.get_later()
 
 # handles commands of various sorts
 def irccommand(cmd, cmdtext, get_commands=False):
 	ircsock = util.ircsock
 
-	cmds_normal = ['help','join','part','msg','rthread','later','msg']
-	cmds_special = ['reload','server','quit']
 	cmds_secure = ['part','msg']
 	cmds_disabled = []
 
-	cmds_all = list(set(cmds_normal) | set(cmds_special))
+	cmds_all = util.cmds_all()
+	cmds_normal = util.cmds_normal()
 
 	# returns list of commands
 	if get_commands:
@@ -66,88 +62,8 @@ def irccommand(cmd, cmdtext, get_commands=False):
 	cmd = cmd.lower()
 	cmdtext = cmdtext.strip()
 
-	if cmd == 'help':
-		if cmdtext == '':
-			util.reply_safe('Currently available commands are: '+', '.join(cmds_all)+'. Type '+init.prefix+'help [command] for a detailed description.')
-		else:
-			help_text = {
-			'help': 'Syntax: help [optional: command]. Displays help.',
-			'reload': 'Syntax: reload. Reloads bot functions.',
-			'server': 'Syntax: server [address]. Connects to the specified server.',
-			'quit': 'Syntax: quit [optional: message]. Disconnects from the current server.',
-			'join': 'Syntax: join [channel]. Joins the specified channel.',
-			'part': 'Syntax: part [channel]. Parts the specified channel.',
-			'later': 'Syntax: later [optional: tell] [nick] [message]. Leaves a message for [nick] when they join or say something.',
-			'rthread': 'Syntax: rthread [optional: board]. Gets a random thread from a specified 4chan board or from a random board if unspecified.'
-			}
-			for cmd_temp,value in help_text.items():
-				help_text[cmd_temp] = help_text[cmd_temp].replace('Syntax: ','Syntax: '+init.prefix)
-			help_cmd = cmdtext.split(' ')[0]
-			if help_cmd in help_text:
-				util.reply_safe(help_text[help_cmd])
-			elif help_cmd not in cmds_all:
-				util.reply_safe('That command does not exist.')
-			else:
-				util.reply_safe('Sorry, no help text has been set for that command yet.')
-	elif cmd == 'join':
-		if cmdtext.split(' ')[0].lower() == '#dontjoinitsatrap':
-			util.reply_safe('Nice try, nerd.')
-		else:
-			util.joinchan(cmdtext.split(' ')[0])
-	elif cmd == 'part':
-		util.partchan(cmdtext.split(' ')[0])
-	elif cmd == 'msg':
-		recipient = cmdtext.split(' ')[0]
-		message = ' '.join(cmdtext.split(' ')[1:])
-		util.sendmsg(recipient, message)
-	elif cmd == 'rthread':
-		s = requests.Session()
-		if cmdtext == '':
-			boards = json.loads(s.get('http://a.4cdn.org/boards.json').text)['boards']
-			rboard = boards[random.randint(1,len(boards))-1]['board']
-			irccommand(cmd, rboard)
-		else:
-			try:
-				cat = json.loads(s.get('http://a.4cdn.org/'+cmdtext.split(' ')[0]+'/catalog.json').text)
-				threads = []
-				for page in cat:
-					for thread in page['threads']:
-						threads.append(thread)
-				rthread = threads[random.randint(1,len(threads))-1]
-				if 'sub' in rthread:
-					subj = rthread['sub'].encode('utf-8')
-				else:
-					subj = 'None'
-				post = util.format_html_entities(util.strip_tags(rthread['com'].replace('<br>',' '))).encode('utf-8')
-				if len(post) > 150:
-					post = post[:150] + '...'
-				util.reply('http://boards.4chan.org/'+cmdtext+'/thread/'+str(rthread['no'])+' Subject: '+subj+', Post: '+post)
-			except Exception, e:
-				util.reply_safe('Invalid board selection.')
-				print(e)
-	elif cmd == 'later':
-		if cmdtext[:5] == 'tell ':
-			if len(cmdtext.split(' ')) < 3:
-				util.reply_safe('Command has too few arguments.')
-			else:
-				irccommand(cmd, cmdtext[5:])
-		else:
-			if len(cmdtext.split(' ')) < 2:
-				util.reply_safe('Command has too few arguments.')
-			else:
-				temp = cmdtext.split(' ')
-				later_nick = temp[0]
-				if len(later_nick) >= 3 and later_nick[:3].lower() == 'xpc':
-					util.reply_safe('You know he doesn\'t like that.')
-				else:
-					later_msg = ' '.join(temp[1:])
-					add = util.add_later(later_nick, util.current_nick(), later_msg)
-					if add:
-						util.reply_safe('Message to '+later_nick+' recorded.')
-						global later
-						later = util.get_later()
-					else:
-						util.reply_safe('You\'ve already sent that message three times already.')
+	if cmd in cmds_normal:
+		execute_command(cmd,cmdtext)
 	else:
 		# attempts to account for typos using Damerau-Levenshtein distance
 		valid = []
@@ -247,7 +163,8 @@ def event_action(msg, event):
 			util.target = msg[2]
 			nick = util.current_nick()
 
-			found = check_later(nick)
+			global later
+			found = util.later_check(nick, later)
 			if found:
 				later = util.get_later()
 
@@ -257,6 +174,6 @@ def event_action(msg, event):
 			util.dtype = msg[1]
 			util.target = msg[2]
 			text = ' '.join(msg[3:])[1:]
-			record_seen(text)
+			util.seen_record(text)
 	except Exception, e:
 		print(e)
