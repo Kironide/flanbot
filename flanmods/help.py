@@ -1,10 +1,10 @@
-import util, init
+import util, settings
 
 def main(cmdtext):
 	cmds_all = util.cmds_all()
 
 	if cmdtext == '':
-		util.reply_safe('Currently available commands are: '+', '.join(cmds_all)+'. Type '+init.prefix+'help [command] for a detailed description.')
+		util.reply_safe('Currently available commands are: '+', '.join(cmds_all)+'. Type '+settings.prefix+'help [command] for a detailed description.')
 	else:
 		help_text = {
 		'help': 'Syntax: help [optional: command]. Displays help.',
@@ -18,7 +18,7 @@ def main(cmdtext):
 		'raw': 'Syntax: raw [data]. Sends data directly to the IRC socket.'
 		}
 		for cmd_temp,value in help_text.items():
-			help_text[cmd_temp] = help_text[cmd_temp].replace('Syntax: ','Syntax: '+init.prefix)
+			help_text[cmd_temp] = help_text[cmd_temp].replace('Syntax: ','Syntax: '+settings.prefix)
 		help_cmd = cmdtext.split(' ')[0]
 		if help_cmd in help_text:
 			util.reply_safe(help_text[help_cmd])

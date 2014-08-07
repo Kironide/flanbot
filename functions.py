@@ -12,20 +12,17 @@ To-do list:
 cmds_secure = ['part','msg','raw']
 cmds_disabled = []
 
-import sys, init, util
+import sys, settings, util, imp
 from itertools import permutations
 from pyxdameraulevenshtein import damerau_levenshtein_distance as distance
 from pyxdameraulevenshtein import normalized_damerau_levenshtein_distance as norm_distance
 
 global later, loaded, perm
 
-def execute_command(cmd,cmdtext):
-	path = sys.path
-	sys.path.append('flanmods/')
-	mod = __import__(cmd)
+def exec_cmd(cmd,cmdtext,folder):
+	mod = imp.load_source(cmd,folder+'/'+cmd+'.py')
 	reload(mod)
 	mod.main(cmdtext)
-	sys.path = path
 
 	if cmd == 'later':
 		global later
@@ -54,21 +51,15 @@ def irccommand(cmd, cmdtext, get_commands=False):
 		util.reply_safe('That command is turned off.')
 		return
 
-	cmd = cmd.lower()
-	cmdtext = cmdtext.strip()
+	# checks for empty command
+	if cmd.strip() == '':
+		return
 
 	# execute the command
+	cmd = cmd.lower().strip()
+	cmdtext = cmdtext.strip()
 	if cmd in cmds_normal:
-		path = sys.path
-		sys.path.append('flanmods/')
-		mod = __import__(cmd)
-		reload(mod)
-		mod.main(cmdtext)
-		sys.path = path
-
-		if cmd == 'later':
-			global later
-			later = util.get_later()
+		exec_cmd(cmd,cmdtext,'flanmods')
 
 	# attempts to account for typos using Damerau-Levenshtein distance
 	else:
@@ -125,9 +116,10 @@ def irccommand(cmd, cmdtext, get_commands=False):
 			if valid[0] in cmds_normal:
 				irccommand(valid[0], cmdtext)
 			else:
-				util.sendmsg(init.botnick,init.prefix+valid[0]+' '+cmdtext)
+				util.sendmsg(settings.botnick,settings.prefix+valid[0]+' '+cmdtext)
 			return
-		util.reply_safe('Invalid command.')
+		# util.reply_safe('Invalid command.') # no need to spam invalid cmd message
+		return
 
 # stuff that should run every iteration of the loop
 def run_every_time(msg):
@@ -155,7 +147,7 @@ def run_every_time(msg):
 	'seen': len(msg) >= 3 and msg[1] in ['PRIVMSG','QUIT','PART','JOIN']
 	}
 	for event,condition in conditions.items():
-		if condition and util.get_nick(msg[0]) != init.botnick:
+		if condition and util.get_nick(msg[0]) != settings.botnick:
 			event_action(msg, event)
 
 # stuff for the above
