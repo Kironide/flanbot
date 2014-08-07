@@ -1,3 +1,14 @@
+"""
+To-do list:
+- improve code structure
+- try to get more stuff out of flanbot.py and into functions.py/util.py
+- socket connect server thing, get efnet to work
+- add url/yt info feature
+- maybe add smart server selection like ~server rizon connects to irc.rizon.net
+- move the html parsing methods to util
+- think about vowel-removal combinations for typo correction
+"""
+
 import re, random, requests, json, HTMLParser
 import init, util
 from itertools import permutations
@@ -22,7 +33,7 @@ def randext():
 	'. Transform: Anti-Bully Ranger!',
 	'. Are you living the NEET life yet?',
 	'. Are you living the literary life yet?',
-	'. Hello, please respond...',
+	'... Hello? Please respond!',
 	', you piece of shit.'
 	]
 	return responses[random.randint(1,len(responses))-1]
@@ -90,7 +101,7 @@ def irccommand(cmd, cmdtext, get_commands=False):
 	cmds_special = ['reload','server','quit']
 	cmds_secure = ['part','msg']
 	cmds_disabled = []
-	
+
 	cmds_all = list(set(cmds_normal) | set(cmds_special))
 
 	# returns list of commands
@@ -196,30 +207,45 @@ def irccommand(cmd, cmdtext, get_commands=False):
 	else:
 		# attempts to account for typos using Damerau-Levenshtein distance
 		valid = []
+
+		# checks if a valid command is a substring of input
 		for cmd_other in cmds_all:
 			if cmd_other in cmd:
 				valid.append(cmd_other)
+		# if one is found, then check if input begins with cmd
+		# if so, user probably did an accidental concatenation
 		if len(valid) == 1:
 			if cmd.startswith(valid[0]):
 				cmdtext = cmd[len(valid[0]):]+' '+cmdtext
+
+		# checks if D-L distance is 1
 		if len(valid) == 0:
 			for cmd_other in cmds_all:
 				if distance(cmd,cmd_other) == 1:
 					valid.append(cmd_other)
+
+		# checks if D-L distance is 2 or norm. D-L distance <= 3
 		if len(valid) == 0:
 			for cmd_other in cmds_all:
 				if distance(cmd,cmd_other) == 2 or norm_distance(cmd,cmd_other) <= 0.3:
 					valid.append(cmd_other)
+
+		# checks if a permutation of a valid command is a substring of input
 		if len(valid) == 0:
 			global perm
 			for cmd_other in cmds_all:
 				for p in perm[cmd_other]:
 					if p in cmd and cmd_other not in valid:
 						valid.append(cmd_other)
+
+		# checks if a unique valid command starts with the input
 		if len(valid) == 0:
 			for cmd_other in cmds_all:
 				if cmd_other.startswith(cmd):
 					valid.append(cmd_other)
+
+		# if there are multiple valid commands found, choose the one that starts
+		# with same letter as input (if unique)
 		if len(valid) > 1:
 			to_remove = []
 			for cmd_temp in valid:
@@ -227,7 +253,10 @@ def irccommand(cmd, cmdtext, get_commands=False):
 					to_remove.append(cmd_temp)
 			for cmd_temp in to_remove:
 				valid.remove(cmd_temp)
+
+		# if unique match found, then use that command
 		if len(valid) == 1:
+			reply_safe('I\'ll interpret that command as \''+valid[0]+'\'. Maybe you made a typo.')
 			if valid[0] in cmds_normal:
 				irccommand(valid[0], cmdtext)
 			else:
