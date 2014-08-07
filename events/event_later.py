@@ -1,4 +1,5 @@
 import util
+import util.later
 
 def main(ircmsg):
 	data = ircmsg.split(' ')
@@ -7,4 +8,6 @@ def main(ircmsg):
 		util.c_dtype = data[1]
 		util.c_target = data[2]
 
-		found = util.later_check(util.current_nick())
+		messages = util.later.later_check(util.current_nick())
+		for message in messages:
+			util.reply(message)

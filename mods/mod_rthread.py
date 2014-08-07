@@ -1,4 +1,5 @@
-import util, requests, json, random
+import util, util.html
+import requests, json, random
 
 def main(cmdtext):
 	s = requests.Session()
@@ -18,7 +19,7 @@ def main(cmdtext):
 				subj = rthread['sub'].encode('utf-8')
 			else:
 				subj = 'None'
-			post = util.format_html_entities(util.strip_tags(rthread['com'].replace('<br>',' '))).encode('utf-8')
+			post = util.html.format_entities(util.html.strip_tags(rthread['com'].replace('<br>',' '))).encode('utf-8')
 			if len(post) > 150:
 				post = post[:150] + '...'
 			util.reply('http://boards.4chan.org/'+cmdtext+'/thread/'+str(rthread['no'])+' Subject: '+subj+', Post: '+post)

@@ -1,4 +1,5 @@
 import util
+import util.later
 
 def main(cmdtext):
 	if cmdtext[:5] == 'tell ':
@@ -16,7 +17,7 @@ def main(cmdtext):
 				util.reply_safe('You know he doesn\'t like that.')
 			else:
 				later_msg = ' '.join(temp[1:])
-				add = util.later_add(later_nick, util.current_nick(), later_msg)
+				add = util.later.later_add(later_nick, util.current_nick(), later_msg)
 				if add:
 					util.reply_safe('Message to '+later_nick+' recorded.')
 				else:

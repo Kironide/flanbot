@@ -8,7 +8,7 @@ cmds_secure = ['part','msg','raw']
 cmds_disabled = []
 
 prefix_mods = 'mod_'
-folder_mods = 'flanmods'
+folder_mods = 'mods'
 
 prefix_events = 'event_'
 folder_events = 'events'
@@ -19,4 +19,4 @@ if not TEST:
 	servers['irc.rizon.io'] = ['#flantest','#neritic-net']
 	servers['irc.arcti.ca'] = ['#snifit']
 else:
-	servers['irc.rizon.net'] = ['#flantest']
+	servers['irc.rizon.io'] = ['#flantest']

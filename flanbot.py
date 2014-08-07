@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import socket, util, settings
+import socket, util, settings, sys, os
 from time import sleep
 
 # returns socket connection to IRC server
@@ -78,6 +78,11 @@ if __name__ == '__main__':
 						# reload modules
 						if cmd == 'reload':
 							reload(util)
+							reload(settings)
+							util_modules = ['util.'+x.replace('.py','') for x in os.listdir('util/') if x.endswith('.py') and x != '__init__.py']
+							for util_mod in util_modules:
+								__import__(util_mod)
+								reload(sys.modules[util_mod])
 							util.loaded = False
 							util.reply_safe('Reloaded.')
 
@@ -111,3 +116,5 @@ if __name__ == '__main__':
 					print(e)
 					util.reply(e)
 					continue
+
+			util.run_after(ircmsg)
