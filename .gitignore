@@ -39,3 +39,4 @@ Icon
 *.pyc
 *.cfg
 *.dat
+*.log
