@@ -1,8 +1,3 @@
-# >using objects for an irc bot
-# >using an irc library
-# >2014
-# laughing_anime_girls.gif
-
 import socket, functions, util, init
 from time import sleep
 
