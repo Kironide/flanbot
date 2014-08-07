@@ -6,11 +6,13 @@ To-do list:
 - add url/yt info feature
 - maybe add smart server selection like ~server rizon connects to irc.rizon.net
 - think about vowel-removal combinations for typo correction
-	- 
+- add more stuff to util
 """
 
-import sys
-import init, util
+cmds_secure = ['part','msg','raw']
+cmds_disabled = []
+
+import sys, init, util
 from itertools import permutations
 from pyxdameraulevenshtein import damerau_levenshtein_distance as distance
 from pyxdameraulevenshtein import normalized_damerau_levenshtein_distance as norm_distance
@@ -31,10 +33,8 @@ def execute_command(cmd,cmdtext):
 
 # handles commands of various sorts
 def irccommand(cmd, cmdtext, get_commands=False):
+	# pass the irc socket to the util module
 	ircsock = util.ircsock
-
-	cmds_secure = ['part','msg']
-	cmds_disabled = []
 
 	cmds_all = util.cmds_all()
 	cmds_normal = util.cmds_normal()
@@ -57,10 +57,21 @@ def irccommand(cmd, cmdtext, get_commands=False):
 	cmd = cmd.lower()
 	cmdtext = cmdtext.strip()
 
+	# execute the command
 	if cmd in cmds_normal:
-		execute_command(cmd,cmdtext)
+		path = sys.path
+		sys.path.append('flanmods/')
+		mod = __import__(cmd)
+		reload(mod)
+		mod.main(cmdtext)
+		sys.path = path
+
+		if cmd == 'later':
+			global later
+			later = util.get_later()
+
+	# attempts to account for typos using Damerau-Levenshtein distance
 	else:
-		# attempts to account for typos using Damerau-Levenshtein distance
 		valid = []
 
 		# checks if a valid command is a substring of input
@@ -87,7 +98,6 @@ def irccommand(cmd, cmdtext, get_commands=False):
 
 		# checks if a permutation of a valid command is a substring of input
 		if len(valid) == 0:
-			global perm
 			for cmd_other in cmds_all:
 				for p in perm[cmd_other]:
 					if p in cmd and cmd_other not in valid:
@@ -131,7 +141,7 @@ def run_every_time(msg):
 		later = util.get_later()
 
 		# calculate permutations of each command
-		cmds = irccommand('','',get_commands=True)
+		cmds = util.cmds_all()
 		perm = {}
 		for cmd in cmds:
 			perm[cmd] = [''.join(p) for p in permutations(cmd)]

@@ -1,13 +1,14 @@
+#!/usr/bin/env python
+
 import socket, functions, util, init
 from time import sleep
 
 # returns socket connection to IRC server
 def get_socket(server, port=6667):
 	ircsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	functions.ircsock = ircsock
+	util.ircsock = ircsock
 	ircsock.connect((server, 6667))
-	sleep(2) # wait for connection to fully establish
-	ircsock.send('USER '+init.botnick+' '+init.botnick+' '+init.botnick+' :'+init.realname+'\n')
+	ircsock.send('USER '+init.botnick+' 0 * :'+init.realname+'\n')
 	ircsock.send('NICK '+init.botnick+'\n')
 	ircsock.setblocking(0) # very important!!!
 	return ircsock
@@ -18,7 +19,6 @@ if __name__ == '__main__':
 	serverof = {} # dictionary mapping sock -> server
 	for server,channels in init.servers.items():
 		ircsock = get_socket(server)
-		util.ircsock = ircsock
 		sleep(3) # if i join channels too fast it doesn't work sometimes
 		for chan in channels:
 			util.joinchan(chan)
@@ -41,6 +41,7 @@ if __name__ == '__main__':
 			ircmsg = ircmsg.strip('\n\r')
 			print(ircmsg)
 			msg = ircmsg.split(' ')
+
 			nick = util.get_nick(msg[0])
 
 			# stuff that should be performed every time
@@ -103,4 +104,6 @@ if __name__ == '__main__':
 
 			# reply to server pings
 			if ircmsg.find('PING :') != -1:
-				util.ping()
+				ping_msg = ircmsg.split('PING :')
+				ping_msg = ping_msg[len(ping_msg)-1].strip()
+				util.ping(ping_msg)

@@ -29,7 +29,7 @@ def cmds_special():
 
 # returns a list of all mods
 def cmds_all():
-	return list(set(cmds_normal()) | set(cmds_special()))
+	return sorted(list(set(cmds_normal()) | set(cmds_special())))
 
 ################
 # HTML PARSING #
@@ -82,8 +82,10 @@ def randext():
 def auth():
 	return current_nick() == 'Kironide'
 
-def ping():
-	ircsock.send('PONG :pingis\n')
+def ping(msg='pingis'):
+	response = 'PONG :'+msg+'\n'
+	ircsock.send(response)
+	print('Responded to ping request with: '+response)
 
 def sendmsg(chan, msg):
 	ircsock.send('PRIVMSG '+chan+' :'+str(msg)+'\n')
@@ -110,6 +112,9 @@ def reply_safe(msg):
 		msg = msg[:len(msg)-1]
 	msg = msg + randext()
 	reply(msg)
+
+def raw(msg):
+	ircsock.send(msg+'\n')
 
 ######################################
 # STUFF RELATED TO THE LATER COMMAND #
