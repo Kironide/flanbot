@@ -25,7 +25,7 @@ if __name__ == '__main__':
 	functions.loaded = False
 
 	# join initial channels
-	sleep(3) # wait a bit before joining channels
+	sleep(5) # wait a bit before joining channels
 	for server,channels in init.servers.items():
 		for ircsock in ircsocks:
 			if serverof[ircsock] == server:
