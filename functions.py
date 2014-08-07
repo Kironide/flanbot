@@ -14,78 +14,13 @@ To-do list:
 	- 
 """
 
-import re, random, requests, json, HTMLParser
+import re, random, requests, json
 import init, util
 from itertools import permutations
-from BeautifulSoup import BeautifulSoup as bs4
 from pyxdameraulevenshtein import damerau_levenshtein_distance as distance
 from pyxdameraulevenshtein import normalized_damerau_levenshtein_distance as norm_distance
 
-global ircsock, serverof, user, dtype, target, later, loaded, perm
-
-# a random thing to append to the end of messages
-def randext():
-	responses = [
-	'.',
-	'...',
-	'!',
-	', probably.',
-	', I think.',
-	', I think.',
-	'. Remember, bullying is bad!',
-	'. Bullies will be the first against the wall!',
-	', more or less.',
-	'. Did you know Plato was the first anti-bully?',
-	'. Transform: Anti-Bully Ranger!',
-	'. Are you living the NEET life yet?',
-	'. Are you living the literary life yet?',
-	'... Hello? Please respond!',
-	', you piece of shit.',
-	'. It can\'t be helped...'
-	]
-	return responses[random.randint(1,len(responses))-1]
-
-# check if authorized
-def auth():
-	return util.get_nick(user) == 'Kironide'
-
-# strip tags from HTML content
-def strip_tags(html):
-	return ''.join(bs4(html).findAll(text=True))
-
-# formats html entitites
-def format_html_entities(html):
-	h = HTMLParser.HTMLParser()
-	return h.unescape(html)
-
-def ping():
-	ircsock.send('PONG :pingis\n')
-
-def reply(msg):
-	if target[0] == '#':
-		sendmsg(target, msg)
-	else:
-		utarget = util.get_nick(user)
-		sendmsg(utarget, msg)
-
-def reply_safe(msg):
-	if msg[-1] == '.':
-		msg = msg[:len(msg)-1]
-	msg = msg + randext()
-	reply(msg)
-
-def sendmsg(chan, msg):
-	ircsock.send('PRIVMSG '+chan+' :'+str(msg)+'\n')
-
-def joinchan(chan):
-	ircsock.send('JOIN '+chan+'\n')
-
-def partchan(chan):
-	ircsock.send('PART '+chan+'\n')
-
-def quit(msg='Quitting.'):
-	reply_safe('This function is not implemented yet.')
-	#ircsock.send('QUIT '+msg+'\n')
+global later, loaded, perm
 
 # checks for msgs
 def check_later(nick):
@@ -93,7 +28,7 @@ def check_later(nick):
 	if util.in_later(nick,later):
 		messages = util.read_later(nick)
 		for msg in messages:
-			reply(msg)
+			util.reply(msg)
 		util.remove_later(nick)
 		return True
 	return False
@@ -104,6 +39,8 @@ def record_seen(text):
 
 # handles commands of various sorts
 def irccommand(cmd, cmdtext, get_commands=False):
+	ircsock = util.ircsock
+
 	cmds_normal = ['help','join','part','msg','rthread','later','msg']
 	cmds_special = ['reload','server','quit']
 	cmds_secure = ['part','msg']
@@ -117,13 +54,13 @@ def irccommand(cmd, cmdtext, get_commands=False):
 
 	# don't want random people spamming stuff
 	if cmd in cmds_secure:
-		if not auth():
-			reply_safe('You are not authorized for that command.')
+		if not util.auth():
+			util.reply_safe('You are not authorized for that command.')
 			return
 
 	# easy check for disabled commands
 	if cmd in cmds_disabled:
-		reply_safe('That command is turned off.')
+		util.reply_safe('That command is turned off.')
 		return
 
 	cmd = cmd.lower()
@@ -131,7 +68,7 @@ def irccommand(cmd, cmdtext, get_commands=False):
 
 	if cmd == 'help':
 		if cmdtext == '':
-			reply_safe('Currently available commands are: '+', '.join(cmds_all)+'. Type '+init.prefix+'help [command] for a detailed description.')
+			util.reply_safe('Currently available commands are: '+', '.join(cmds_all)+'. Type '+init.prefix+'help [command] for a detailed description.')
 		else:
 			help_text = {
 			'help': 'Syntax: help [optional: command]. Displays help.',
@@ -147,22 +84,22 @@ def irccommand(cmd, cmdtext, get_commands=False):
 				help_text[cmd_temp] = help_text[cmd_temp].replace('Syntax: ','Syntax: '+init.prefix)
 			help_cmd = cmdtext.split(' ')[0]
 			if help_cmd in help_text:
-				reply_safe(help_text[help_cmd])
+				util.reply_safe(help_text[help_cmd])
 			elif help_cmd not in cmds_all:
-				reply_safe('That command does not exist.')
+				util.reply_safe('That command does not exist.')
 			else:
-				reply_safe('Sorry, no help text has been set for that command yet.')
+				util.reply_safe('Sorry, no help text has been set for that command yet.')
 	elif cmd == 'join':
 		if cmdtext.split(' ')[0].lower() == '#dontjoinitsatrap':
-			reply_safe('Nice try, nerd.')
+			util.reply_safe('Nice try, nerd.')
 		else:
-			joinchan(cmdtext.split(' ')[0])
+			util.joinchan(cmdtext.split(' ')[0])
 	elif cmd == 'part':
-		partchan(cmdtext.split(' ')[0])
+		util.partchan(cmdtext.split(' ')[0])
 	elif cmd == 'msg':
 		recipient = cmdtext.split(' ')[0]
 		message = ' '.join(cmdtext.split(' ')[1:])
-		sendmsg(recipient, message)
+		util.sendmsg(recipient, message)
 	elif cmd == 'rthread':
 		s = requests.Session()
 		if cmdtext == '':
@@ -181,36 +118,36 @@ def irccommand(cmd, cmdtext, get_commands=False):
 					subj = rthread['sub'].encode('utf-8')
 				else:
 					subj = 'None'
-				post = format_html_entities(strip_tags(rthread['com'].replace('<br>',' '))).encode('utf-8')
+				post = util.format_html_entities(util.strip_tags(rthread['com'].replace('<br>',' '))).encode('utf-8')
 				if len(post) > 150:
 					post = post[:150] + '...'
-				reply('http://boards.4chan.org/'+cmdtext+'/thread/'+str(rthread['no'])+' Subject: '+subj+', Post: '+post)
+				util.reply('http://boards.4chan.org/'+cmdtext+'/thread/'+str(rthread['no'])+' Subject: '+subj+', Post: '+post)
 			except Exception, e:
-				reply_safe('Invalid board selection.')
+				util.reply_safe('Invalid board selection.')
 				print(e)
 	elif cmd == 'later':
 		if cmdtext[:5] == 'tell ':
 			if len(cmdtext.split(' ')) < 3:
-				reply_safe('Command has too few arguments.')
+				util.reply_safe('Command has too few arguments.')
 			else:
 				irccommand(cmd, cmdtext[5:])
 		else:
 			if len(cmdtext.split(' ')) < 2:
-				reply_safe('Command has too few arguments.')
+				util.reply_safe('Command has too few arguments.')
 			else:
 				temp = cmdtext.split(' ')
 				later_nick = temp[0]
 				if len(later_nick) >= 3 and later_nick[:3].lower() == 'xpc':
-					reply_safe('You know he doesn\'t like that.')
+					util.reply_safe('You know he doesn\'t like that.')
 				else:
 					later_msg = ' '.join(temp[1:])
-					add = util.add_later(later_nick, util.get_nick(user), later_msg)
+					add = util.add_later(later_nick, util.current_nick(), later_msg)
 					if add:
-						reply_safe('Message to '+later_nick+' recorded.')
+						util.reply_safe('Message to '+later_nick+' recorded.')
 						global later
 						later = util.get_later()
 					else:
-						reply_safe('You\'ve already sent that message three times already.')
+						util.reply_safe('You\'ve already sent that message three times already.')
 	else:
 		# attempts to account for typos using Damerau-Levenshtein distance
 		valid = []
@@ -263,13 +200,13 @@ def irccommand(cmd, cmdtext, get_commands=False):
 
 		# if unique match found, then use that command
 		if len(valid) == 1:
-			reply_safe('I\'ll interpret that command as \''+valid[0]+'\'. Maybe you made a typo.')
+			util.reply_safe('I\'ll interpret that command as \''+valid[0]+'\'. Maybe you made a typo.')
 			if valid[0] in cmds_normal:
 				irccommand(valid[0], cmdtext)
 			else:
-				sendmsg(init.botnick,init.prefix+valid[0]+' '+cmdtext)
+				util.sendmsg(init.botnick,init.prefix+valid[0]+' '+cmdtext)
 			return
-		reply_safe('Invalid command.')
+		util.reply_safe('Invalid command.')
 
 # stuff that should run every iteration of the loop
 def run_every_time(msg):
@@ -305,10 +242,10 @@ def event_action(msg, event):
 	try:
 		# checks for a later message to send upon PRIVMSG or JOIN
 		if event == 'later':
-			user = msg[0][1:]
-			dtype = msg[1]
-			target = msg[2]
-			nick = util.get_nick(user)
+			util.user = msg[0][1:]
+			util.dtype = msg[1]
+			util.target = msg[2]
+			nick = util.current_nick()
 
 			found = check_later(nick)
 			if found:
@@ -316,9 +253,9 @@ def event_action(msg, event):
 
 		# records messages/quits/parts/joins for seen command data
 		elif event == 'seen':
-			user = msg[0][1:]
-			dtype = msg[1]
-			target = msg[2]
+			util.user = msg[0][1:]
+			util.dtype = msg[1]
+			util.target = msg[2]
 			text = ' '.join(msg[3:])[1:]
 			record_seen(text)
 	except Exception, e:

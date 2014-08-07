@@ -1,8 +1,6 @@
-import os, pickle, time, math
-
-# returns just the nick from stuff!idk@whatever
-def get_nick(user):
-	return user.split('!')[0].replace(':','')
+import os, pickle, time, math, random, HTMLParser
+from BeautifulSoup import BeautifulSoup as bs4
+global ircsock, user, dtype, target, serverof
 
 # returns the formatted time difference between a timestamp and current time
 def timediff(ts):
@@ -21,9 +19,85 @@ def timediff(ts):
 	hours = hours - days*24
 	return str(int(days))+'d'+str(int(hours))+'h ago'
 
+################
+# HTML PARSING #
+################
+
+# strip tags from HTML content
+def strip_tags(html):
+	return ''.join(bs4(html).findAll(text=True))
+
+# formats html entitites
+def format_html_entities(html):
+	h = HTMLParser.HTMLParser()
+	return h.unescape(html)
+
 #########################
 # IRC NETWORK FUNCTIONS #
 #########################
+
+# returns just the nick from stuff!idk@whatever
+def get_nick(username):
+	return username.split('!')[0].replace(':','')
+
+# returns the "current" nick
+def current_nick():
+	return get_nick(user)
+
+# a random thing to append to the end of messages
+def randext():
+	responses = [
+	'.',
+	'...',
+	'!',
+	', probably.',
+	', I think.',
+	', I think.',
+	'. Remember, bullying is bad!',
+	'. Bullies will be the first against the wall!',
+	', more or less.',
+	'. Did you know Plato was the first anti-bully?',
+	'. Transform: Anti-Bully Ranger!',
+	'. Are you living the NEET life yet?',
+	'. Are you living the literary life yet?',
+	'... Hello? Please respond!',
+	', you piece of shit.',
+	'. It can\'t be helped...'
+	]
+	return responses[random.randint(1,len(responses))-1]
+
+# check if authorized
+def auth():
+	return current_nick() == 'Kironide'
+
+def ping():
+	ircsock.send('PONG :pingis\n')
+
+def sendmsg(chan, msg):
+	ircsock.send('PRIVMSG '+chan+' :'+str(msg)+'\n')
+
+def joinchan(chan):
+	ircsock.send('JOIN '+chan+'\n')
+
+def partchan(chan):
+	ircsock.send('PART '+chan+'\n')
+
+def quit(msg='Quitting.'):
+	reply_safe('This function is not implemented yet.')
+	#ircsock.send('QUIT '+msg+'\n')
+
+def reply(msg):
+	if target[0] == '#':
+		sendmsg(target, msg)
+	else:
+		utarget = current_nick()
+		sendmsg(utarget, msg)
+
+def reply_safe(msg):
+	if msg[-1] == '.':
+		msg = msg[:len(msg)-1]
+	msg = msg + randext()
+	reply(msg)
 
 ######################################
 # STUFF RELATED TO THE LATER COMMAND #

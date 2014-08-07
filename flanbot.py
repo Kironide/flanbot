@@ -18,19 +18,20 @@ if __name__ == '__main__':
 	serverof = {} # dictionary mapping sock -> server
 	for server,channels in init.servers.items():
 		ircsock = get_socket(server)
+		util.ircsock = ircsock
 		sleep(3) # if i join channels too fast it doesn't work sometimes
 		for chan in channels:
-			functions.joinchan(chan)
+			util.joinchan(chan)
 		ircsocks.append(ircsock)
 		serverof[ircsock] = server
-	functions.serverof = serverof
+	util.serverof = serverof
 	functions.loaded = False
 
 	while 1:
 		# loop through socket connections indefinitely
 		for i in range(len(ircsocks)):
 			ircsock = ircsocks[i]
-			functions.ircsock = ircsock
+			util.ircsock = ircsock
 
 			# receive data from server
 			try:
@@ -54,9 +55,9 @@ if __name__ == '__main__':
 
 				# give the module the variables
 				if nick != init.botnick:
-					functions.user = msguser
-					functions.dtype = msgtype
-					functions.target = msgtarget
+					util.user = msguser
+					util.dtype = msgtype
+					util.target = msgtarget
 
 				# check for presence of prefix
 				try:
@@ -68,7 +69,7 @@ if __name__ == '__main__':
 							reload(functions)
 							reload(util)
 							functions.loaded = False
-							functions.reply_safe('Reloaded.')
+							util.reply_safe('Reloaded.')
 
 						# create a new socket and add it to the list
 						elif cmd == 'server':
@@ -76,19 +77,19 @@ if __name__ == '__main__':
 							ircsock = get_socket(cmdtext)
 							ircsocks.append(ircsock)
 							serverof[ircsock] = cmdtext
-							functions.serverof = serverof
+							util.serverof = serverof
 
 						# leaves a server
 						elif cmd == 'quit':
 							cmdtext = msgtext[1+len(init.prefix)+len(cmd):len(msgtext)]
 							if len(cmdtext) == 0:
-								try_quit = functions.quit()
+								try_quit = util.quit()
 							else:
-								try_quit = functions.quit(cmdtext)
+								try_quit = util.quit(cmdtext)
 							if try_quit:
 								ircsocks.remove(ircsock)
 								serverof.pop(ircsock,None)
-								functions.serverof = serverof
+								util.serverof = serverof
 
 						# pass the command over to the functions module
 						else:
@@ -97,9 +98,9 @@ if __name__ == '__main__':
 				except Exception, e:
 					print('Error in flanbot.py.')
 					print(e)
-					functions.reply(e)
+					util.reply(e)
 					continue
 
 			# reply to server pings
 			if ircmsg.find('PING :') != -1:
-				functions.ping()
+				util.ping()
