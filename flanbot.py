@@ -1,8 +1,6 @@
 import socket, functions, util, init
 from time import sleep
 
-PREFIX = '~'
-
 # returns socket connection to IRC server
 def get_socket(server, port=6667):
 	ircsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -44,7 +42,10 @@ if __name__ == '__main__':
 			msg = ircmsg.split(' ')
 			nick = util.get_nick(msg[0])
 
-			# runs code for commands starting with PREFIX
+			# stuff that should be performed every time
+			functions.run_every_time(msg)
+
+			# runs code for commands starting with init.prefix
 			if len(msg) >= 4 and msg[1] == 'PRIVMSG':
 				msguser = msg[0][1:]
 				msgtype = msg[1]
@@ -52,13 +53,14 @@ if __name__ == '__main__':
 				msgtext = ' '.join(msg[3:len(msg)])[1:]
 
 				# give the module the variables
-				functions.user = msguser
-				functions.dtype = msgtype
-				functions.target = msgtarget
+				if nick != init.botnick:
+					functions.user = msguser
+					functions.dtype = msgtype
+					functions.target = msgtarget
 
 				# check for presence of prefix
 				try:
-					if msgtext[0] == PREFIX:
+					if msgtext[0] == init.prefix:
 						cmd = msgtext.split(' ')[0][1:]
 
 						# reload modules
@@ -66,11 +68,11 @@ if __name__ == '__main__':
 							reload(functions)
 							reload(util)
 							functions.loaded = False
-							functions.reply('Reloaded.')
+							functions.reply_safe('Reloaded.')
 
 						# create a new socket and add it to the list
 						elif cmd == 'server':
-							cmdtext = msgtext[1+len(PREFIX)+len(cmd):len(msgtext)]
+							cmdtext = msgtext[1+len(init.prefix)+len(cmd):len(msgtext)]
 							ircsock = get_socket(cmdtext)
 							ircsocks.append(ircsock)
 							serverof[ircsock] = cmdtext
@@ -78,24 +80,25 @@ if __name__ == '__main__':
 
 						# leaves a server
 						elif cmd == 'quit':
-							cmdtext = msgtext[1+len(PREFIX)+len(cmd):len(msgtext)]
+							cmdtext = msgtext[1+len(init.prefix)+len(cmd):len(msgtext)]
 							if len(cmdtext) == 0:
-								functions.quit()
+								try_quit = functions.quit()
 							else:
-								functions.quit(cmdtext)
-							ircsocks.remove(ircsock)
+								try_quit = functions.quit(cmdtext)
+							if try_quit:
+								ircsocks.remove(ircsock)
+								serverof.pop(ircsock,None)
+								functions.serverof = serverof
 
 						# pass the command over to the functions module
 						else:
-							cmdtext = msgtext[1+len(PREFIX)+len(cmd):len(msgtext)]
+							cmdtext = msgtext[1+len(init.prefix)+len(cmd):len(msgtext)]
 							functions.irccommand(cmd, cmdtext)
 				except Exception, e:
+					print('Error in flanbot.py.')
 					print(e)
 					functions.reply(e)
 					continue
-
-			# stuff that should be performed every time
-			functions.run_every_time(msg)
 
 			# reply to server pings
 			if ircmsg.find('PING :') != -1:
