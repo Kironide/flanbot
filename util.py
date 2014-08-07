@@ -5,7 +5,7 @@ from BeautifulSoup import BeautifulSoup as bs4
 from pyxdameraulevenshtein import damerau_levenshtein_distance as distance
 from pyxdameraulevenshtein import normalized_damerau_levenshtein_distance as norm_distance
 
-global ircsock, user, dtype, target, serverof
+global ircsock, serverof, c_mask, c_dtype, c_target
 global loaded, perm
 
 # stuff that should run every iteration of the loop
@@ -31,7 +31,7 @@ def run_every_time(msg):
 	'seen': len(msg) >= 3 and msg[1] in ['PRIVMSG','QUIT','PART','JOIN']
 	}
 	for event,condition in conditions.items():
-		if condition and get_nick(msg[0]) != settings.botnick:
+		if condition and ircmask_nick(msg[0]) != settings.botnick:
 			event_action(msg, event)
 
 # stuff for the above
@@ -39,9 +39,9 @@ def event_action(msg, event):
 	try:
 		# checks for a later message to send upon PRIVMSG or JOIN
 		if event == 'later':
-			user = msg[0][1:]
-			dtype = msg[1]
-			target = msg[2]
+			c_mask = msg[0][1:]
+			c_dtype = msg[1]
+			c_target = msg[2]
 			nick = current_nick()
 
 			found = later_check(nick)
@@ -50,16 +50,22 @@ def event_action(msg, event):
 
 		# records messages/quits/parts/joins for seen command data
 		elif event == 'seen':
-			user = msg[0][1:]
-			dtype = msg[1]
-			target = msg[2]
+			c_mask = msg[0][1:]
+			c_dtype = msg[1]
+			c_target = msg[2]
 			text = ' '.join(msg[3:])[1:]
 			seen_record(text)
 	except Exception, e:
 		print(e)
 
 def exec_cmd(cmd,cmdtext,folder):
-	mod = imp.load_source(cmd,folder+'/'+cmd+'.py')
+	pref = ''
+	if folder == settings.folder_mods:
+		pref = settings.prefix_mods
+	
+	path = folder+'/'+pref+cmd+'.py'
+	print('Loading mod from: '+path)
+	mod = imp.load_source(cmd,path)
 	mod.main(cmdtext)
 
 # handles commands of various sorts
@@ -89,7 +95,7 @@ def irccommand(cmd, cmdtext, sock=None):
 	cmd = cmd.lower().strip()
 	cmdtext = cmdtext.strip()
 	if cmd in normal_commands:
-		exec_cmd(cmd,cmdtext,'flanmods')
+		exec_cmd(cmd,cmdtext,settings.folder_mods)
 
 	# attempts to account for typos using Damerau-Levenshtein distance
 	else:
@@ -193,7 +199,7 @@ def timediff(ts):
 
 # returns a list of dynamically called modules
 def cmds_normal():
-	return [x.replace('.py','') for x in os.listdir('flanmods/') if x.endswith('py')]
+	return [x.replace('.py','')[len(settings.prefix_mods):] for x in os.listdir('flanmods/') if x.endswith('.py')]
 
 # returns a list of undynamic commands
 def cmds_special():
@@ -219,14 +225,6 @@ def format_html_entities(html):
 #########################
 # IRC NETWORK FUNCTIONS #
 #########################
-
-# returns just the nick from stuff!idk@whatever
-def get_nick(username):
-	return username.split('!')[0].replace(':','')
-
-# returns the "current" nick
-def current_nick():
-	return get_nick(user)
 
 # a random thing to append to the end of messages
 def randext():
@@ -273,8 +271,8 @@ def quit(msg='Quitting.'):
 	#ircsock.send('QUIT '+msg+'\n')
 
 def reply(msg):
-	if target[0] == '#':
-		sendmsg(target, msg)
+	if c_target[0] == '#':
+		sendmsg(c_target, msg)
 	else:
 		utarget = current_nick()
 		sendmsg(utarget, msg)
@@ -287,6 +285,31 @@ def reply_safe(msg):
 
 def raw(msg):
 	ircsock.send(msg+'\n')
+
+################
+# NICK PARSING #
+################
+
+# splits an irc hostmask
+# shamelessly stolen from chsm
+def ircmask_split (mask):
+	nick, userhost = mask.split('!', 1)
+	user, host = userhost.split('@', 1)
+	return (nick.replace(':',''), user, host)
+def ircmask_nick(mask):
+	return ircmask_split(mask)[0]
+def ircmask_user(mask):
+	return ircmask_split(mask)[1]
+def ircmask_host(mask):
+	return ircmask_split(mask)[2]
+def current_nick():
+	return ircmask_nick(c_mask)
+def current_user():
+	return ircmask_user(c_mask)
+def current_host():
+	return ircmask_host(c_mask)
+def current_mask():
+	return c_mask
 
 ######################################
 # STUFF RELATED TO THE LATER COMMAND #

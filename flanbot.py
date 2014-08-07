@@ -52,28 +52,28 @@ if __name__ == '__main__':
 			with open('flanlog.log','a') as f:
 				f.write(ircmsg+'\n')
 
-			nick = util.get_nick(msg[0])
-
 			# stuff that should be performed every time
 			util.run_every_time(msg)
 
 			# runs code for commands starting with settings.prefix
 			if len(msg) >= 4 and msg[1] == 'PRIVMSG':
-				msguser = msg[0][1:]
-				msgtype = msg[1]
-				msgtarget = msg[2]
-				msgtext = ' '.join(msg[3:len(msg)])[1:]
+				c_mask = msg[0][1:]
+				c_dtype = msg[1]
+				c_target = msg[2]
+				c_text = ' '.join(msg[3:len(msg)])[1:]
+
+				nick = util.ircmask_nick(c_mask)
 
 				# give the module the variables
 				if nick != settings.botnick:
-					util.user = msguser
-					util.dtype = msgtype
-					util.target = msgtarget
+					util.c_mask = c_mask
+					util.c_dtype = c_dtype
+					util.c_target = c_target
 
 				# check for presence of prefix
 				try:
-					if msgtext[0] == settings.prefix:
-						cmd = msgtext.split(' ')[0][1:]
+					if c_text[0] == settings.prefix:
+						cmd = c_text.split(' ')[0][1:]
 
 						# reload modules
 						if cmd == 'reload':
@@ -83,7 +83,7 @@ if __name__ == '__main__':
 
 						# create a new socket and add it to the list
 						elif cmd == 'server':
-							cmdtext = msgtext[1+len(settings.prefix)+len(cmd):len(msgtext)]
+							cmdtext = c_text[1+len(settings.prefix)+len(cmd):len(c_text)]
 							ircsock = get_socket(cmdtext)
 							ircsocks.append(ircsock)
 							serverof[ircsock] = cmdtext
@@ -91,7 +91,7 @@ if __name__ == '__main__':
 
 						# leaves a server
 						elif cmd == 'quit':
-							cmdtext = msgtext[1+len(settings.prefix)+len(cmd):len(msgtext)]
+							cmdtext = c_text[1+len(settings.prefix)+len(cmd):len(c_text)]
 							if len(cmdtext) == 0:
 								try_quit = util.quit()
 							else:
@@ -103,7 +103,7 @@ if __name__ == '__main__':
 
 						# pass the command over
 						else:
-							cmdtext = msgtext[1+len(settings.prefix)+len(cmd):len(msgtext)]
+							cmdtext = c_text[1+len(settings.prefix)+len(cmd):len(c_text)]
 							util.irccommand(cmd, cmdtext, sock=ircsock)
 				except Exception, e:
 					print('Error in flanbot.py.')
