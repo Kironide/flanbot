@@ -3,7 +3,7 @@ nick_ext = '_'
 realname = 'Flandre Scarlet'
 prefix = '~'
 logfile = 'flanlog.log'
-TEST = True
+TEST = False
 
 cmds_secure = ['part','msg','raw','server','quit','test']
 cmds_disabled = []
@@ -25,9 +25,11 @@ msg_quit = 'Quitting.'
 servers = {}
 if not TEST:
 	servers['nucleus.kafuka.org'] = ['#fraxy','#board2']
-	servers['irc.rizon.io'] = ['#flantest','#neritic-net','#suikatest','#/jp/ma','#solidus','#quizup']
+	servers['irc.rizon.io'] = ['#flantest','#neritic-net','#suikatest','#/jp/ma','#solidus','#quizup','#elona','#batoru']
 	servers['irc.arcti.ca'] = ['#snifit']
 else:
 	servers['irc.rizon.io'] = ['#flantest']
+	servers['nucleus.kafuka.org'] = ['#flantest']
 
 seen_buffer = 3
+recv_data_amount = 2048

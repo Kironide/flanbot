@@ -55,7 +55,7 @@ def later_read(nick):
 				rawmsg.append(msg)
 	to_send = []
 	for item in rawmsg:
-		to_send.append(nick+': ('+timeutils.timediff(item[0])+') <'+item[1]+'> '+item[2])
+		to_send.append(''+nick+': ('+timeutils.timediff(item[0])+') <'+item[1]+'> '+item[2])
 	return to_send
 
 # returns true if nick is in later

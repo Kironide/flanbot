@@ -3,41 +3,36 @@
 """
 to-do list:
 - add utility functions for channel and user info
+	- add tupo correction for user nicks :^)
 - finish implementing dice
 - think about how to change the settings while the bot is running
-- maybe implement multithreading for the connections? but maybe not
 """
 
-import sys, os, settings, util, util.parser, util.network
+import sys, os, settings, util, util.parser, util.network, util.misc
 from time import sleep
 
 if __name__ == '__main__':
 	util.ircsocks = []
-	nick_ext, serverof = {}, {}
+	util.serverof = {}
+	util.loaded = False
 	for server,channels in settings.servers.items():
 		ircsock = util.network.get_socket(server)
 		util.ircsocks.append(ircsock)
-		serverof[ircsock] = server
-		nick_ext[ircsock] = ''
-	util.serverof = serverof
-	util.loaded = False
+		util.serverof[ircsock] = server
 
 	sleep(3)
 
 	while 1:
 		# loop through socket connections indefinitely
-		for sock in util.ircsocks:
-			util.ircsock = sock
-			ircsock = sock
+		for ircsock in util.ircsocks:
+			util.ircsock = ircsock
 
 			# receive data from server
 			try:
-				ircmsg = ircsock.recv(2048)
+				ircmsgs = ircsock.recv(settings.recv_data_amount).strip('\r\n').split('\r\n')
 			except:
-				ircmsg = ''
+				ircmsgs = []
 				continue # if there is no data to read
-			ircmsg = ircmsg.strip('\r\n')
-			ircmsgs = ircmsg.split('\r\n')
 
 			for ircmsg in ircmsgs:
 				print(ircmsg)
@@ -48,31 +43,35 @@ if __name__ == '__main__':
 					f.write(ircmsg+'\n')
 
 				try:
-					# checks for reload
+					# step 1 of 4: check for reload command
 					if p.trigger_cmd():
 						if not p.from_self():
 							util.cparser = p
 						if p.is_command() and p.get_command() == 'reload':
 							reload(util)
 							reload(settings)
-							util_modules = ['util.'+x.replace('.py','') for x in os.listdir('util/') if x.endswith('.py') and x != '__init__.py']
+							util_modules = util.misc.utils_all()
 							for util_mod in util_modules:
 								__import__(util_mod)
 								reload(sys.modules[util_mod])
 							util.loaded = False
 							util.reply_safe(settings.msg_reload)
 
+					# step 2 of 3: run pre-command things
 					util.run_before(ircmsg)
 
-					# runs code for commands starting with settings.prefix
+					# step 3 of 4: run non-reload commands
 					if p.trigger_cmd():
 						if not p.from_self():
 							util.cparser = p
 						if p.is_command() and p.get_command() != 'reload':
 							util.irccommand(p.get_command(), p.get_cmdtext())
 
+					# step 4 of 4: run post-command things
 					util.run_after(ircmsg)
+				
 				except Exception, e:
-					util.handle_exception(e)
+					util.misc.handle_exception(e)
 					if p.trigger_cmd():
 						util.reply(e)
+					continue

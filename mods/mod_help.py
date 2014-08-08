@@ -1,7 +1,8 @@
-import util, settings
+import util, util.misc
+import settings
 
 def main(cmdtext):
-	cmds_all = util.cmds_all()
+	cmds_all = util.misc.cmds_all()
 
 	if cmdtext == '':
 		util.notice_current('Currently available commands are: '+', '.join(cmds_all)+'. Type '+settings.prefix+'help [command] for a detailed description.')
