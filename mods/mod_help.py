@@ -4,7 +4,7 @@ def main(cmdtext):
 	cmds_all = util.cmds_all()
 
 	if cmdtext == '':
-		util.reply_current('Currently available commands are: '+', '.join(cmds_all)+'. Type '+settings.prefix+'help [command] for a detailed description.')
+		util.notice_current('Currently available commands are: '+', '.join(cmds_all)+'. Type '+settings.prefix+'help [command] for a detailed description.')
 	else:
 		help_text = {
 		'help': 'Syntax: help [optional: command]. Displays help.',
@@ -22,8 +22,8 @@ def main(cmdtext):
 			help_text[cmd_temp] = help_text[cmd_temp].replace('Syntax: ','Syntax: '+settings.prefix)
 		help_cmd = cmdtext.split(' ')[0]
 		if help_cmd in help_text:
-			util.reply_current(help_text[help_cmd])
+			util.notice_current(help_text[help_cmd])
 		elif help_cmd not in cmds_all:
-			util.reply_current('That command does not exist.')
+			util.notice_current('That command does not exist.')
 		else:
-			util.reply_current('Sorry, no help text has been set for that command yet.')
+			util.notice_current('Sorry, no help text has been set for that command yet.')

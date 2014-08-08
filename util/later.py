@@ -1,4 +1,5 @@
 import timeutils
+import settings
 import os, pickle, time
 
 # returns the pickled object in later.dat
@@ -6,17 +7,17 @@ import os, pickle, time
 # keys are usernames, values are lists of messages
 # each message is stored as [timestamp, fromuser, msg]
 def get_later():
-	if not os.path.exists('later.dat'):
-		with open('later.dat','w') as f:
+	if not os.path.exists(settings.datafile_later):
+		with open(settings.datafile_later,'w') as f:
 			temp = {}
 			pickle.dump(temp,f)
-	with open('later.dat','r') as f:
+	with open(settings.datafile_later,'r') as f:
 		temp = pickle.load(f)
 	return temp
 
 # save the later object to later.dat
 def save_later(later):
-	with open('later.dat','w') as f:
+	with open(settings.datafile_later,'w') as f:
 		pickle.dump(later,f)
 
 # adds a msg to send to the later object

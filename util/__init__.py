@@ -20,14 +20,10 @@ def exec_cmd(modname,inputstr,folder):
 
 # stuff that should run every iteration of the loop
 def run_before(ircmsg):
-	try:
-		# runs events
-		events = [x.replace('.py','')[len(settings.prefix_events):] for x in os.listdir(settings.folder_events+'/') if x.endswith('.py')]
-		for event in events:
-			exec_cmd(event,ircmsg,settings.folder_events)
-	except Exception, e:
-		print('Encountered an exception while processing events.')
-		print(e)
+	# runs events
+	events = [x.replace('.py','')[len(settings.prefix_events):] for x in os.listdir(settings.folder_events+'/') if x.endswith('.py')]
+	for event in events:
+		exec_cmd(event,ircmsg,settings.folder_events)
 
 # stuff to run after cmd parsing
 def run_after(ircmsg):
@@ -57,12 +53,12 @@ def irccommand(cmd, cmdtext, sock=None):
 	# don't want random people spamming stuff
 	if cmd in settings.cmds_secure:
 		if not auth():
-			reply_safe('You are not authorized for that command.')
+			reply_safe(settings.msg_notauth)
 			return
 
 	# easy check for disabled commands
 	if cmd in settings.cmds_disabled:
-		reply_safe('That command is turned off.')
+		reply_safe(settings.msg_disabled)
 		return
 
 	# checks for empty command
@@ -170,11 +166,6 @@ def cmds_special():
 def cmds_all():
 	return sorted(list(set(cmds_normal()) | set(cmds_special())))
 
-################
-# HTML PARSING #
-################
-
-
 #########################
 # IRC NETWORK FUNCTIONS #
 #########################
@@ -213,6 +204,9 @@ def ping(msg='pingis'):
 def sendmsg(chan, msg):
 	ircsock.send('PRIVMSG '+chan+' :'+str(msg)+'\n')
 
+def sendnotice(chan, msg):
+	ircsock.send('NOTICE '+chan+' :'+str(msg)+'\n')
+
 def joinchan(chan):
 	ircsock.send('JOIN '+chan+'\n')
 
@@ -236,7 +230,7 @@ def reply_safe(msg):
 	msg = msg + randext()
 	reply(msg)
 
-def reply_current(msg):
+def notice_current(msg):
 	sendmsg(current_nick(),msg)
 
 def raw(msg):
@@ -272,18 +266,3 @@ def current_host():
 	return ircmask_host(c_mask)
 def current_mask():
 	return c_mask
-
-#####################################
-# STUFF RELATED TO THE SEEN COMMAND #
-#####################################
-
-# save data about someone
-def seen_save(nick, type, msg=''):
-	# create data file if it doesn't exist
-	if not os.path.exists('seen.dat'):
-		with open('seen.dat','w') as f:
-			test = 1
-
-# records seen data
-def seen_record(text):
-	asdf = True
