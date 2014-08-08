@@ -65,7 +65,7 @@ if __name__ == '__main__':
 					# checks for reload
 					if p.trigger_cmd():
 						if not p.from_self():
-							util.c_mask,util.c_target = p.mask,p.target
+							util.cparser = p
 						if p.is_command() and p.get_command() == 'reload':
 							reload(util)
 							reload(settings)
@@ -81,7 +81,7 @@ if __name__ == '__main__':
 					# runs code for commands starting with settings.prefix
 					if p.trigger_cmd():
 						if not p.from_self():
-							util.c_mask,util.c_target = p.mask,p.target
+							util.cparser = p
 						if p.is_command() and p.get_command != 'reload':
 							util.irccommand(p.get_command(), p.get_cmdtext(), sock=ircsock)
 

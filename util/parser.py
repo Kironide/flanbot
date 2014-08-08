@@ -44,8 +44,10 @@ class Parser:
 					self.saddr = other[0]
 					self.dtype = int(other[1])
 		except Exception, e:
-			print(e)
 			self.classification = 'other'
+
+	def target_is_channel(self):
+		return self.from_user() and self.target[0] in ['#','&']
 
 	def from_server(self):
 		return self.classification == 'server'

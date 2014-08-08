@@ -4,7 +4,7 @@ from itertools import permutations
 from pyxdameraulevenshtein import damerau_levenshtein_distance as distance
 from pyxdameraulevenshtein import normalized_damerau_levenshtein_distance as norm_distance
 
-global ircsocks, ircsock, serverof, c_mask, c_dtype, c_target
+global ircsocks, ircsock, serverof, cparser
 global loaded, perm
 
 # handles exception
@@ -222,8 +222,8 @@ def quit():
 	ircsock.send('QUIT :'+settings.msg_quit+'\n')
 
 def reply(msg):
-	if c_target[0] == '#':
-		sendmsg(c_target, msg)
+	if cparser.target_is_channel():
+		sendmsg(cparser.target, msg)
 	else:
 		utarget = current_nick()
 		sendmsg(utarget, msg)
@@ -237,32 +237,13 @@ def reply_safe(msg):
 def notice_current(msg):
 	sendmsg(current_nick(),msg)
 
-
-################
-# NICK PARSING #
-################
-
-def ircmask_split (mask):
-	nick, userhost = mask.split('!', 1)
-	user, host = userhost.split('@', 1)
-	return (nick.replace(':',''), user, host)
-def ircmask_valid(mask):
-	try:
-		temp = ircmask_split(mask)
-		return True
-	except:
-		return False
-def ircmask_nick(mask):
-	return ircmask_split(mask)[0]
-def ircmask_user(mask):
-	return ircmask_split(mask)[1]
-def ircmask_host(mask):
-	return ircmask_split(mask)[2]
 def current_nick():
-	return ircmask_nick(c_mask)
+	return cparser.nick
 def current_user():
-	return ircmask_user(c_mask)
+	return cparser.user
 def current_host():
-	return ircmask_host(c_mask)
+	return cparser.host
 def current_mask():
-	return c_mask
+	return cparser.mask
+def current_target():
+	return cparser.target
