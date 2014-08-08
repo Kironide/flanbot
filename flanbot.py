@@ -25,8 +25,6 @@ if __name__ == '__main__':
 		util.ircsocks.append(ircsock)
 		util.serverof[ircsock] = server
 
-	sleep(3)
-
 	while 1:
 		# loop through socket connections indefinitely
 		for ircsock in util.ircsocks:
