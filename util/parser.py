@@ -6,8 +6,9 @@ def get_parser(ircmsg):
 class Parser:
 	def __init__(self,ircmsg):
 		try:
+			self.ircmsg = ircmsg
 			if ircmsg[0] != ':' or len(ircmsg.split(' ')) == 1:
-				self.classification = 'other'
+				self.classification = 'self.other'
 			else:
 				halves = ['','']
 				parts = ircmsg[1:].split(' ')
@@ -19,19 +20,19 @@ class Parser:
 					halves[hid] = halves[hid]+' '+parts[pid]
 				halves[0] = halves[0].strip()
 				halves[1] = halves[1].strip()
-				other = halves[0].split(' ')
+				self.other = halves[0].split(' ')
 				regex = re.compile('([^\s]+)![^a-zA-Z0-9]?([^\s]+)@([^\s]+)')
-				r = regex.search(other[0])
+				r = regex.search(self.other[0])
 				if r != None:
 					self.classification = 'user'
-					self.mask = other[0]
+					self.mask = self.other[0]
 					self.nick = r.groups()[0]
 					self.user = r.groups()[1]
 					self.host = r.groups()[2]
-					self.dtype = other[1]
+					self.dtype = self.other[1]
 
 					if self.dtype in ['NOTICE','QUIT','PART','PRIVMSG','MODE','KICK']:
-						self.target = other[2]
+						self.target = self.other[2]
 					elif self.dtype == 'JOIN':
 						self.target = halves[1]
 					
@@ -41,10 +42,10 @@ class Parser:
 						self.text = None
 				else:
 					self.classification = 'server'
-					self.saddr = other[0]
-					self.dtype = int(other[1])
+					self.saddr = self.other[0]
+					self.dtype = int(self.other[1])
 		except Exception, e:
-			self.classification = 'other'
+			self.classification = 'self.other'
 
 	def target_is_channel(self):
 		return self.from_user() and self.target[0] in ['#','&']
@@ -70,5 +71,10 @@ class Parser:
 	def get_cmdtext(self):
 		return ' '.join(self.text.split(' ')[1:])
 
+	def rpl_welcome(self):
+		return self.from_server() and self.dtype == 1
+
 	def err_nicknameinuse(self):
 		return self.from_server() and self.dtype == 433
+	def err_nicknameinuse_nick(self):
+		return self.other[len(self.other)-1]

@@ -1,4 +1,5 @@
 botnick = 'flanfly'
+nick_ext = '_'
 realname = 'Flandre Scarlet'
 prefix = '~'
 logfile = 'flanlog.log'
@@ -24,7 +25,7 @@ msg_quit = 'Quitting.'
 servers = {}
 if not TEST:
 	servers['nucleus.kafuka.org'] = ['#fraxy','#board2']
-	servers['irc.rizon.io'] = ['#flantest','#neritic-net','#suikatest','#/jp/ma','#solidus']
+	servers['irc.rizon.io'] = ['#flantest','#neritic-net','#suikatest','#/jp/ma','#solidus','#quizup']
 	servers['irc.arcti.ca'] = ['#snifit']
 else:
 	servers['irc.rizon.io'] = ['#flantest']

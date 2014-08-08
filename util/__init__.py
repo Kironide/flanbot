@@ -1,11 +1,17 @@
 import os, imp, random
 import settings
 from itertools import permutations
+from multiprocessing import Process
 from pyxdameraulevenshtein import damerau_levenshtein_distance as distance
 from pyxdameraulevenshtein import normalized_damerau_levenshtein_distance as norm_distance
 
 global ircsocks, ircsock, serverof, cparser
 global loaded, perm
+
+# check if authorized
+def auth():
+	#return False
+	return current_nick() == 'Kironide'
 
 # handles exception
 def handle_exception(e):
@@ -20,7 +26,12 @@ def exec_cmd(modname,inputstr,folder):
 	path = folder+'/'+pref+modname+'.py'
 	# print('Loading module from: '+path) # this prints a lot
 	mod = imp.load_source(modname,path)
-	mod.main(inputstr)
+	if modname in ['server','quit']:
+		mod.main(inputstr)
+	else:
+		p = Process(target=mod.main,args=(inputstr,))
+		p.start()
+		p.join()
 
 # stuff that should run every iteration of the loop
 def run_before(ircmsg):
@@ -165,13 +176,11 @@ def irccommand(cmd, cmdtext, sock=None):
 def cmds_normal():
 	return [x.replace('.py','')[len(settings.prefix_mods):] for x in os.listdir(settings.folder_mods+'/') if x.endswith('.py') and x.startswith(settings.prefix_mods)]
 
-# returns a list of undynamic commands
-def cmds_special():
-	return ['reload']
-
 # returns a list of all mods
 def cmds_all():
-	return sorted(list(set(cmds_normal()) | set(cmds_special())))
+	temp = cmds_normal()
+	temp.append('reload')
+	return sorted(temp)
 
 #########################
 # IRC NETWORK FUNCTIONS #
@@ -199,11 +208,6 @@ def randext():
 	]
 	return responses[random.randint(1,len(responses))-1]
 
-# check if authorized
-def auth():
-	return False
-	return current_nick() == 'Kironide'
-
 def raw(msg):
 	ircsock.send(msg+'\n')
 def ping(msg):
@@ -218,6 +222,8 @@ def partchan(chan):
 	ircsock.send('PART '+chan+'\n')
 def quit():
 	ircsock.send('QUIT :'+settings.msg_quit+'\n')
+def change_nick(nick):
+	ircsock.send('NICK '+nick+'\n')
 
 def reply(msg):
 	if cparser.target_is_channel():
@@ -245,3 +251,5 @@ def current_mask():
 	return cparser.mask
 def current_target():
 	return cparser.target
+def current_server():
+	return serverof[ircsock]

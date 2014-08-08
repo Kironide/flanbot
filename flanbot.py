@@ -5,6 +5,7 @@ to-do list:
 - add utility functions for channel and user info
 - finish implementing dice
 - think about how to change the settings while the bot is running
+- maybe implement multithreading for the connections? but maybe not
 """
 
 import sys, os, settings, util, util.parser, util.network
@@ -12,13 +13,12 @@ from time import sleep
 
 if __name__ == '__main__':
 	util.ircsocks = []
-	nick_ext, first_loop, serverof = {}, {}, {}
+	nick_ext, serverof = {}, {}
 	for server,channels in settings.servers.items():
 		ircsock = util.network.get_socket(server)
 		util.ircsocks.append(ircsock)
 		serverof[ircsock] = server
 		nick_ext[ircsock] = ''
-		first_loop[ircsock] = True
 	util.serverof = serverof
 	util.loaded = False
 
@@ -47,20 +47,6 @@ if __name__ == '__main__':
 				with open(settings.logfile,'a') as f:
 					f.write(ircmsg+'\n')
 
-				# if it's the first loop then do some stuff
-				if ircsock in first_loop and first_loop[ircsock]:
-					channels = settings.servers[util.serverof[ircsock]]
-					for chan in channels:
-						util.joinchan(chan)
-					first_loop[ircsock] = False
-
-				# change nick if there's a conflict
-				if p.err_nicknameinuse():
-					nick_ext[ircsock] += '_'
-					ircsock.send('NICK '+settings.botnick+nick_ext[ircsock]+'\n')
-					if ircsock in first_loop:
-						first_loop[ircsock] = True
-
 				try:
 					# checks for reload
 					if p.trigger_cmd():
@@ -83,7 +69,7 @@ if __name__ == '__main__':
 						if not p.from_self():
 							util.cparser = p
 						if p.is_command() and p.get_command() != 'reload':
-							util.irccommand(p.get_command(), p.get_cmdtext(), sock=ircsock)
+							util.irccommand(p.get_command(), p.get_cmdtext())
 
 					util.run_after(ircmsg)
 				except Exception, e:
