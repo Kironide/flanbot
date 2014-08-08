@@ -153,3 +153,28 @@ def match_input(input_wrong, correct):
 	if len(valid) == 1:
 		return valid[0],supplement
 	return None
+
+# just matches using D-L
+# returns a match or None
+# also ignores capitalization
+def match_input_weak(input_wrong, correct):
+	valid = []
+	if len(valid) == 0:
+		for input_correct in correct:
+			if distance(input_wrong.lower(),input_correct.lower()) == 1:
+				valid.append(input_correct)
+	if len(valid) == 0:
+		for input_correct in correct:
+			if distance(input_wrong.lower(),input_correct.lower()) == 2:
+				valid.append(input_correct)
+	if len(valid) == 0:
+		for input_correct in correct:
+			if distance(input_wrong.lower(),input_correct.lower()) == 3:
+				valid.append(input_correct)
+	if len(valid) == 0:
+		for input_correct in correct:
+			if distance(input_wrong.lower(),input_correct.lower()) == 4:
+				valid.append(input_correct)
+	if len(valid) == 1:
+		return valid[0]
+	return None

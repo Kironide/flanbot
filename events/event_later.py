@@ -5,6 +5,6 @@ def main(ircmsg):
 	if p.trigger_later():
 		util.cparser = p
 
-		messages = util.later.later_check(util.current_nick())
+		messages = util.later.check(util.current_nick())
 		for message in messages:
 			util.reply(message)

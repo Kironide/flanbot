@@ -44,6 +44,7 @@ class Parser:
 					self.classification = 'server'
 					self.saddr = self.other[0]
 					self.dtype = int(self.other[1])
+					self.text = halves[1]
 		except Exception, e:
 			self.classification = 'self.other'
 
@@ -63,6 +64,8 @@ class Parser:
 		return self.from_user() and self.dtype in ['PRIVMSG','JOIN']
 	def trigger_seen(self):
 		return self.from_user() and self.dtype in ['PRIVMSG','QUIT','PART','JOIN','NOTICE']
+	def trigger_chaninfo(self):
+		return self.from_user() and self.dtype in ['QUIT','PART','JOIN']
 
 	def is_command(self):
 		return self.trigger_cmd() and self.text.startswith(settings.prefix)
@@ -73,6 +76,13 @@ class Parser:
 
 	def rpl_welcome(self):
 		return self.from_server() and self.dtype == 1
+
+	def rpl_namreply(self):
+		return self.from_server() and self.dtype == 353
+	def rpl_namreply_chan(self):
+		return self.other[len(self.other)-1]
+	def rpl_namreply_names(self):
+		return self.text.split(' ')
 
 	def err_nicknameinuse(self):
 		return self.from_server() and self.dtype == 433

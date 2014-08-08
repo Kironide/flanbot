@@ -1,4 +1,4 @@
-import timeutils
+import timeutils, dataio, misc
 import settings
 import os, pickle, time
 
@@ -6,48 +6,41 @@ import os, pickle, time
 # creates file with empty dict if it doesn't exist
 # keys are usernames, values are lists of messages
 # each message is stored as [timestamp, fromuser, msg]
-def get_later():
-	if not os.path.exists(settings.datafile_later):
-		with open(settings.datafile_later,'w') as f:
-			temp = {}
-			pickle.dump(temp,f)
-	with open(settings.datafile_later,'r') as f:
-		temp = pickle.load(f)
-	return temp
+def load():
+	return dataio.load_file(settings.datafile_later,{})
 
 # save the later object to later.dat
-def save_later(later):
-	with open(settings.datafile_later,'w') as f:
-		pickle.dump(later,f)
+def save(later):
+	dataio.save_file(settings.datafile_later,later)
 
 # adds a msg to send to the later object
 # nick is the person to send to
 # user is the person who sent it
-def later_add(nick, user, msg):
-	times = later_count(nick, user, msg)
+def add(nick, user, msg):
+	times = count(nick, user, msg)
 	if times >= 3:
 		return False
-	later = get_later()
+	later = load()
 	if nick not in later:
 		later[nick] = []
 	later[nick].append([time.time(), user, msg])
-	save_later(later)
+	save(later)
 	return True
 
 # removes a user from the later object
-def later_remove(nick):
-	later = get_later()
+def remove(nick):
+	later = load()
 	to_remove = []
 	for nick_later,msgs in later.items():
 		if nick.lower() == nick_later.lower():
 			to_remove.append(nick_later)
 	for nick_later in to_remove:
 		later.pop(nick_later, None)
-	save_later(later)
+	save(later)
 
 # gets a list of messages to send for a certain nick
-def later_read(nick):
-	later = get_later()
+def read(nick):
+	later = load()
 	rawmsg = []
 	for nick_later,msgs in later.items():
 		if nick.lower() == nick_later.lower():
@@ -61,15 +54,15 @@ def later_read(nick):
 # returns true if nick is in later
 def later_contains(nick, later=None):
 	if later == None:
-		later = get_later()
+		later = load()
 	for nick_later,msgs in later.items():
 		if nick.lower() == nick_later.lower():
 			return True
 	return False
 
 # number of times a message is recorded for someone
-def later_count(nick, user, msg):
-	later = get_later()
+def count(nick, user, msg):
+	later = load()
 	times = 0
 	for nick_later,msgs in later.items():
 		if nick.lower() == nick_later.lower():
@@ -79,11 +72,12 @@ def later_count(nick, user, msg):
 	return times
 
 # checks for msgs
-def later_check(nick, later=None):
+def check(nick, later=None):
 	if later == None:
-		later = get_later()
+		later = load()
 	if later_contains(nick,later):
-		messages = later_read(nick)
-		later_remove(nick)
+		messages = read(nick)
+		remove(nick)
+		messages.reverse()
 		return messages
 	return []

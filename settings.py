@@ -10,6 +10,7 @@ cmds_disabled = []
 
 datafile_later = 'data/later.dat'
 datafile_seen = 'data/seen.dat'
+datafile_chaninfo = 'data/chaninfo.dat'
 
 prefix_mods = 'mod_'
 folder_mods = 'mods'
@@ -25,7 +26,7 @@ msg_quit = 'Quitting.'
 servers = {}
 if not TEST:
 	servers['nucleus.kafuka.org'] = ['#fraxy','#board2']
-	servers['irc.rizon.io'] = ['#flantest','#neritic-net','#suikatest','#/jp/ma','#solidus','#quizup','#elona','#batoru']
+	servers['irc.rizon.io'] = ['#quizup','#flantest','#neritic-net','#suikatest','#/jp/ma','#solidus','#quizup','#elona','#batoru']
 	servers['irc.arcti.ca'] = ['#snifit']
 else:
 	servers['irc.rizon.io'] = ['#flantest']
