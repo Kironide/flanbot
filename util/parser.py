@@ -5,13 +5,20 @@ def get_parser(ircmsg):
 
 class Parser:
 	def __init__(self,ircmsg):
-		if ircmsg[0] != ':' or len(ircmsg.split(' ')) == 1:
-			self.classification = 'other'
-		else:
-			try:
-				regex = re.compile('(.*)\s\:([^\:]*)')
-				r = regex.search(ircmsg[1:])
-				halves = list(r.groups())
+		try:
+			if ircmsg[0] != ':' or len(ircmsg.split(' ')) == 1:
+				self.classification = 'other'
+			else:
+				halves = ['','']
+				parts = ircmsg[1:].split(' ')
+				hid = 0
+				for pid in range(len(parts)):
+					if parts[pid].startswith(':'):
+						hid = 1
+						parts[pid] = parts[pid][1:]
+					halves[hid] = halves[hid]+' '+parts[pid]
+				halves[0] = halves[0].strip()
+				halves[1] = halves[1].strip()
 				other = halves[0].split(' ')
 				regex = re.compile('([^\s]+)![^a-zA-Z0-9]?([^\s]+)@([^\s]+)')
 				r = regex.search(other[0])
@@ -36,9 +43,9 @@ class Parser:
 					self.classification = 'server'
 					self.saddr = other[0]
 					self.dtype = int(other[1])
-			except Exception, e:
-				print(e)
-				self.classification = 'other'
+		except Exception, e:
+			print(e)
+			self.classification = 'other'
 
 	def from_server(self):
 		return self.classification == 'server'

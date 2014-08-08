@@ -4,17 +4,12 @@ from itertools import permutations
 from pyxdameraulevenshtein import damerau_levenshtein_distance as distance
 from pyxdameraulevenshtein import normalized_damerau_levenshtein_distance as norm_distance
 
-global ircsock, serverof, c_mask, c_dtype, c_target
+global ircsocks, ircsock, serverof, c_mask, c_dtype, c_target
 global loaded, perm
 
-# returns socket connection to IRC server
-def get_socket(server, port=6667):
-	ircsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	ircsock.connect((server, 6667))
-	ircsock.send('USER '+settings.botnick+' 0 * :'+settings.realname+'\n')
-	ircsock.send('NICK '+settings.botnick+'\n')
-	ircsock.setblocking(0) # very important!!!
-	return ircsock
+# handles exception
+def handle_exception(e):
+	print(e)
 
 def exec_cmd(modname,inputstr,folder):
 	pref = ''
@@ -49,6 +44,10 @@ def run_after(ircmsg):
 			perm[cmd] = [''.join(p) for p in permutations(cmd)]
 
 		loaded = True
+
+	# quit from removed servers
+	if ircsock not in ircsocks:
+		quit()
 
 # handles commands of various sorts
 def irccommand(cmd, cmdtext, sock=None):
@@ -168,7 +167,7 @@ def cmds_normal():
 
 # returns a list of undynamic commands
 def cmds_special():
-	return ['reload','server','quit']
+	return ['reload']
 
 # returns a list of all mods
 def cmds_all():
@@ -202,6 +201,7 @@ def randext():
 
 # check if authorized
 def auth():
+	return False
 	return current_nick() == 'Kironide'
 
 def ping(msg='pingis'):
@@ -218,10 +218,8 @@ def joinchan(chan):
 	ircsock.send('JOIN '+chan+'\n')
 def partchan(chan):
 	ircsock.send('PART '+chan+'\n')
-
-def quit(msg='Quitting.'):
-	reply_safe('This function is not implemented yet.')
-	#ircsock.send('QUIT '+msg+'\n')
+def quit():
+	ircsock.send('QUIT :'+settings.msg_quit+'\n')
 
 def reply(msg):
 	if c_target[0] == '#':
