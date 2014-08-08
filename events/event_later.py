@@ -1,12 +1,10 @@
-import util
-import util.later
+import util, util.later, util.parser
 
 def main(ircmsg):
-	data = ircmsg.split(' ')
-	if util.ircmask_valid(data[0]) and (data[1] == 'PRIVMSG' or data[1] == 'JOIN'):
-		util.c_mask = data[0][1:]
-		util.c_dtype = data[1]
-		util.c_target = data[2]
+	p = util.parser.get_parser(ircmsg)
+	if p.trigger_later():
+		util.c_mask = p.mask
+		util.c_target = p.target
 
 		messages = util.later.later_check(util.current_nick())
 		for message in messages:

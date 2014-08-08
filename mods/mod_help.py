@@ -12,7 +12,7 @@ def main(cmdtext):
 		'server': 'Syntax: server [address]. Connects to the specified server.',
 		'quit': 'Syntax: quit [optional: message]. Disconnects from the current server.',
 		'join': 'Syntax: join [channel] [optional: pass]. Joins the specified channel.',
-		'part': 'Syntax: part [channel]. Parts the specified channel.',
+		'part': 'Syntax: part [optional: channel]. Parts the specified channel or the current channel if unspecified.',
 		'later': 'Syntax: later [optional: tell] [nick] [message]. Leaves a message for [nick] when they join or say something.',
 		'rthread': 'Syntax: rthread [optional: board]. Gets a random thread from a specified 4chan board or from a random board if unspecified.',
 		'raw': 'Syntax: raw [data]. Sends data directly to the IRC socket.',

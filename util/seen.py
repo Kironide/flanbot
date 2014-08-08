@@ -2,8 +2,6 @@ import timeutils
 import settings
 import os, pickle
 
-# utilities relating to the seen command
-
 def seen_getdata():
 	# create data file if it doesn't exist
 	if not os.path.exists(settings.datafile_seen):
@@ -58,7 +56,7 @@ def seen_dataconv(data):
 		msg = 'parting '+target
 	elif dtype == 'JOIN':
 		msg = 'joining '+target
-	elif dtype == 'PRIVMSG':
+	elif dtype == 'PRIVMSG' or dtype == 'NOTICE':
 		msg = 'saying "'+msg+'" in '+target
 	elif dtype == 'QUIT':
 		msg = 'quitting'
@@ -75,7 +73,6 @@ def seen_lookup(nick):
 	while None in rawdata:
 		rawdata.remove(None)
 	msg = nick+' was last seen '
-	print(rawdata)
 	if len(rawdata) == 1:
 		msg = msg+seen_dataconv(rawdata[0])
 	elif len(rawdata) == 2:

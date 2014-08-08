@@ -22,15 +22,13 @@ def exec_cmd(modname,inputstr,folder):
 def run_before(ircmsg):
 	ircmsg = ircmsg.strip()
 	# runs events
-	events = [x.replace('.py','')[len(settings.prefix_events):] for x in os.listdir(settings.folder_events+'/') if x.endswith('.py')]
+	events = [x.replace('.py','')[len(settings.prefix_events):] for x in os.listdir(settings.folder_events+'/') if x.endswith('.py') and x.startswith(settings.prefix_events)]
 	for event in events:
 		exec_cmd(event,ircmsg,settings.folder_events)
 
 # stuff to run after cmd parsing
 def run_after(ircmsg):
 	global loaded
-
-	# load initial data and stuff like that
 	if not loaded:
 		global perm
 		reload(settings)
@@ -157,7 +155,7 @@ def irccommand(cmd, cmdtext, sock=None):
 
 # returns a list of dynamically called modules
 def cmds_normal():
-	return [x.replace('.py','')[len(settings.prefix_mods):] for x in os.listdir(settings.folder_mods+'/') if x.endswith('.py')]
+	return [x.replace('.py','')[len(settings.prefix_mods):] for x in os.listdir(settings.folder_mods+'/') if x.endswith('.py') and x.startswith(settings.prefix_mods)]
 
 # returns a list of undynamic commands
 def cmds_special():
@@ -200,17 +198,15 @@ def auth():
 def ping(msg='pingis'):
 	response = 'PONG :'+msg+'\n'
 	ircsock.send(response)
-	print('Responded to ping request with: '+response.strip())
 
+def raw(msg):
+	ircsock.send(msg+'\n')
 def sendmsg(chan, msg):
 	ircsock.send('PRIVMSG '+chan+' :'+str(msg)+'\n')
-
 def sendnotice(chan, msg):
 	ircsock.send('NOTICE '+chan+' :'+str(msg)+'\n')
-
 def joinchan(chan):
 	ircsock.send('JOIN '+chan+'\n')
-
 def partchan(chan):
 	ircsock.send('PART '+chan+'\n')
 
@@ -234,15 +230,11 @@ def reply_safe(msg):
 def notice_current(msg):
 	sendmsg(current_nick(),msg)
 
-def raw(msg):
-	ircsock.send(msg+'\n')
 
 ################
 # NICK PARSING #
 ################
 
-# splits an irc hostmask
-# shamelessly stolen from chsm
 def ircmask_split (mask):
 	nick, userhost = mask.split('!', 1)
 	user, host = userhost.split('@', 1)

@@ -2,7 +2,7 @@ botnick = 'flanfly'
 realname = 'Flandre Scarlet'
 prefix = '~'
 logfile = 'flanlog.log'
-TEST = False
+TEST = True
 
 cmds_secure = ['part','msg','raw']
 cmds_disabled = []
