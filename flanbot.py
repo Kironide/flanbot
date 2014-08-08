@@ -3,7 +3,7 @@
 """
 to-do list:
 - add utility functions for channel and user info
-	- add tupo correction for user nicks :^)
+	- add typo correction for user nicks :^)
 - finish implementing dice
 - think about how to change the settings while the bot is running
 """
@@ -69,7 +69,7 @@ if __name__ == '__main__':
 
 					# step 4 of 4: run post-command things
 					util.run_after(ircmsg)
-				
+
 				except Exception, e:
 					util.misc.handle_exception(e)
 					if p.trigger_cmd():
