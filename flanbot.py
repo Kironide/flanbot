@@ -82,7 +82,7 @@ if __name__ == '__main__':
 					if p.trigger_cmd():
 						if not p.from_self():
 							util.cparser = p
-						if p.is_command() and p.get_command != 'reload':
+						if p.is_command() and p.get_command() != 'reload':
 							util.irccommand(p.get_command(), p.get_cmdtext(), sock=ircsock)
 
 					util.run_after(ircmsg)
