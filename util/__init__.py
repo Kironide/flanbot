@@ -1,4 +1,4 @@
-import os, imp, random, socket
+import os, imp, random
 import settings
 from itertools import permutations
 from pyxdameraulevenshtein import damerau_levenshtein_distance as distance
@@ -204,12 +204,10 @@ def auth():
 	return False
 	return current_nick() == 'Kironide'
 
-def ping(msg='pingis'):
-	response = 'PONG :'+msg+'\n'
-	ircsock.send(response)
-
 def raw(msg):
 	ircsock.send(msg+'\n')
+def ping(msg):
+	ircsock.send('PONG :'+msg+'\n')
 def sendmsg(chan, msg):
 	ircsock.send('PRIVMSG '+chan+' :'+str(msg)+'\n')
 def sendnotice(chan, msg):
@@ -235,7 +233,7 @@ def reply_safe(msg):
 	reply(msg)
 
 def notice_current(msg):
-	sendmsg(current_nick(),msg)
+	sendnotice(current_nick(),msg)
 
 def current_nick():
 	return cparser.nick
