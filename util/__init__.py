@@ -236,6 +236,9 @@ def reply_safe(msg):
 	msg = msg + randext()
 	reply(msg)
 
+def reply_current(msg):
+	sendmsg(current_nick(),msg)
+
 def raw(msg):
 	ircsock.send(msg+'\n')
 
