@@ -3,6 +3,7 @@
 """
 to-do list:
 - add utility functions for channel and user info
+- finish implementing dice
 - think about how to change the settings while the bot is running
 """
 
@@ -11,9 +12,7 @@ from time import sleep
 
 if __name__ == '__main__':
 	util.ircsocks = []
-	nick_ext = {}
-	first_loop = {}
-	serverof = {} # dictionary mapping sock -> server
+	nick_ext, first_loop, serverof = {}, {}, {}
 	for server,channels in settings.servers.items():
 		ircsock = util.network.get_socket(server)
 		util.ircsocks.append(ircsock)
