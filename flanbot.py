@@ -84,7 +84,7 @@ if __name__ == '__main__':
 								__import__(util_mod)
 								reload(sys.modules[util_mod])
 							util.loaded = False
-							util.reply_safe('Reloaded.')
+							util.reply_safe(settings.reload_msg)
 
 						# create a new socket and add it to the list
 						elif cmd == 'server':
