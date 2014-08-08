@@ -1,4 +1,4 @@
-import os, imp, random
+import os, imp, random, socket
 import settings
 from itertools import permutations
 from pyxdameraulevenshtein import damerau_levenshtein_distance as distance
@@ -6,6 +6,15 @@ from pyxdameraulevenshtein import normalized_damerau_levenshtein_distance as nor
 
 global ircsock, serverof, c_mask, c_dtype, c_target
 global loaded, perm
+
+# returns socket connection to IRC server
+def get_socket(server, port=6667):
+	ircsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	ircsock.connect((server, 6667))
+	ircsock.send('USER '+settings.botnick+' 0 * :'+settings.realname+'\n')
+	ircsock.send('NICK '+settings.botnick+'\n')
+	ircsock.setblocking(0) # very important!!!
+	return ircsock
 
 def exec_cmd(modname,inputstr,folder):
 	pref = ''

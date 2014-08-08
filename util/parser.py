@@ -9,7 +9,9 @@ class Parser:
 			self.classification = 'other'
 		else:
 			try:
-				halves = ircmsg[1:].split(':')
+				regex = re.compile('(.*)\s\:([^\:]*)')
+				r = regex.search(ircmsg[1:])
+				halves = list(r.groups())
 				other = halves[0].split(' ')
 				regex = re.compile('([^\s]+)![^a-zA-Z0-9]?([^\s]+)@([^\s]+)')
 				r = regex.search(other[0])
@@ -34,7 +36,8 @@ class Parser:
 					self.classification = 'server'
 					self.saddr = other[0]
 					self.dtype = int(other[1])
-			except:
+			except Exception, e:
+				print(e)
 				self.classification = 'other'
 
 	def from_server(self):

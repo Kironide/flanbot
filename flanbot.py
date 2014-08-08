@@ -9,22 +9,13 @@ to-do list:
 import socket, sys, os, settings, util, util.parser
 from time import sleep
 
-# returns socket connection to IRC server
-def get_socket(server, port=6667):
-	ircsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	ircsock.connect((server, 6667))
-	ircsock.send('USER '+settings.botnick+' 0 * :'+settings.realname+'\n')
-	ircsock.send('NICK '+settings.botnick+'\n')
-	ircsock.setblocking(0) # very important!!!
-	return ircsock
-
 if __name__ == '__main__':
 	ircsocks = []
 	nick_ext = {}
 	first_loop = {}
 	serverof = {} # dictionary mapping sock -> server
 	for server,channels in settings.servers.items():
-		ircsock = get_socket(server)
+		ircsock = util.get_socket(server)
 		ircsocks.append(ircsock)
 		serverof[ircsock] = server
 		nick_ext[ircsock] = ''
@@ -108,7 +99,7 @@ if __name__ == '__main__':
 						# create a new socket and add it to the list
 						if cmd == 'server':
 							if util.auth():
-								ircsock = get_socket(cmdtext)
+								ircsock = util.get_socket(cmdtext)
 								ircsocks.append(ircsock)
 								serverof[ircsock] = cmdtext
 								util.serverof = serverof
