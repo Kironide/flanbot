@@ -15,3 +15,17 @@ def load_file(fpath, default):
 def save_file(fpath, obj):
 	with open(fpath,'w') as f:
 		pickle.dump(obj,f)
+
+# opens a file and reads the raw contents
+# returns None if path does not exist
+def load_raw(fpath):
+	if not os.path.exists(fpath):
+		return None
+	with open(fpath,'r') as f:
+		temp = f.read()
+	return temp
+
+# saves some raw data to file
+def save_raw(fpath, data):
+	with open(fpath,'w') as f:
+		f.write(data)

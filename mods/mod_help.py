@@ -21,7 +21,8 @@ def main(cmdtext):
 		'server': 'Syntax: server [server]. Connects to the specified server.',
 		'quit': 'Syntax: quit. Disconnects from the current server.',
 		'test': 'Syntax: depends. This does various things at various times.',
-		'dice': 'Syntax: [optional: NdM]. Rolls a dice and defaults to 1d6 if not specified.'
+		'dice': 'Syntax: [optional: NdM]. Rolls a dice and defaults to 1d6 if not specified.',
+		'book': 'Syntax: book [book]. Returns a random sentence from a book. Available books: '+', '.join(util.misc.books_all())
 		}
 		for cmd_temp,value in help_text.items():
 			help_text[cmd_temp] = help_text[cmd_temp].replace('Syntax: ','Syntax: '+settings.prefix)

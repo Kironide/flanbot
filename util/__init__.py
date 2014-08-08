@@ -37,6 +37,11 @@ def quit():
 def change_nick(nick):
 	ircsock.send('NICK '+nick+'\n')
 
+def nickserv_identify(pw, service='NickServ'):
+	sendmsg(service,'identify '+pw)
+def nickserv_ghost(pw, service='NickServ'):
+	sendmsg(service,'ghost '+pw)
+
 def reply(msg):
 	if cparser.target_is_channel():
 		sendmsg(cparser.target, msg)

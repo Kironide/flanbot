@@ -17,25 +17,7 @@ def perm_dict(items):
 
 # a random thing to append to the end of messages
 def randext():
-	responses = [
-	'.',
-	'...',
-	'!',
-	', probably.',
-	', I think.',
-	', I think.',
-	'. Remember, bullying is bad!',
-	'. Bullies will be the first against the wall!',
-	', more or less.',
-	'. Did you know Plato was the first anti-bully?',
-	'. Transform: Anti-Bully Ranger!',
-	'. Are you living the NEET life yet?',
-	'. Are you living the literary life yet?',
-	'... Hello? Please respond!',
-	', you piece of shit.',
-	'. It can\'t be helped...'
-	]
-	return responses[random.randint(1,len(responses))-1]
+	return settings.responses[random.randint(1,len(settings.responses))-1]
 
 # returns a list of dynamically called modules
 def cmds_normal():
@@ -54,6 +36,10 @@ def events_all():
 # returns a list of all utility modules in form util.mod
 def utils_all():
 	return ['util.'+x.replace('.py','') for x in os.listdir('util/') if x.endswith('.py') and x != '__init__.py']
+
+# returns a list of all books
+def books_all():
+	return [x.replace('.txt','') for x in os.listdir(settings.folder_books+'/') if x.endswith('.txt')]
 
 # execute command
 def exec_cmd(modname,inputstr,folder):
