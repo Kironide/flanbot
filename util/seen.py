@@ -75,6 +75,7 @@ def seen_lookup(nick):
 	while None in rawdata:
 		rawdata.remove(None)
 	msg = nick+' was last seen '
+	print(rawdata)
 	if len(rawdata) == 1:
 		msg = msg+seen_dataconv(rawdata[0])
 	elif len(rawdata) == 2:

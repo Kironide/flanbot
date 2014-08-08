@@ -20,6 +20,7 @@ def exec_cmd(modname,inputstr,folder):
 
 # stuff that should run every iteration of the loop
 def run_before(ircmsg):
+	ircmsg = ircmsg.strip()
 	# runs events
 	events = [x.replace('.py','')[len(settings.prefix_events):] for x in os.listdir(settings.folder_events+'/') if x.endswith('.py')]
 	for event in events:
