@@ -10,6 +10,6 @@ import settings
 def random_sentence(book):
 	bookdata = dataio.load_raw(settings.folder_books+'/'+book+'.txt')
 	if bookdata == None:
-		return 'I don\'t have that book on hand.'
+		return settings.msg_nobook
 	blob = TextBlob(ftfy.fix_text(bookdata.decode('utf-8')))
 	return blob.sentences[random.randint(1,len(blob.sentences))-1]

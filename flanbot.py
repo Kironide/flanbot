@@ -2,15 +2,11 @@
 
 """
 to-do list:
-- add utility functions for channel and user info
-	- add typo correction for user nicks :^)
+- mafia
+- lewd
+- stalk
 - finish implementing dice
-- think about how to change the settings while the bot is running
-- have it keep track of what channels it's a member of on each server
-	- maybe just add an event to respond to the channel-joining response
-	- and then remove them for parts, kicks, and quits (another event)
-- add another event to update channel info
-- modify later/seen to use util.dataio
+- modify seen to use util.dataio
 """
 
 import sys, os, settings, util, util.parser, util.network, util.misc

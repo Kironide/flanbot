@@ -11,6 +11,7 @@ cmds_disabled = []
 datafile_later = 'data/later.dat'
 datafile_seen = 'data/seen.dat'
 datafile_chaninfo = 'data/chaninfo.dat'
+datafile_mafia = 'data/mafia.dat'
 
 prefix_mods = 'mod_'
 folder_mods = 'mods'
@@ -23,6 +24,7 @@ folder_books = 'books'
 msg_reload = 'Reloaded utility modules.'
 msg_notauth = 'You are not authorized for this command.'
 msg_disabled = 'That command is turned off.'
+msg_nobook = 'I don\'t have that book on hand.'
 msg_quit = 'Quitting.'
 
 servers = {}
@@ -55,5 +57,6 @@ responses = [
 '! Believe in me who believes in you!',
 '. For you.',
 '! Super interesting!',
-'. Sasuga onii-sama!'
+'. Sasuga onii-sama!',
+', onii-chan!'
 ]
