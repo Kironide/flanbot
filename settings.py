@@ -3,9 +3,9 @@ nick_ext = '_'
 realname = 'Flandre Scarlet'
 prefix = '~'
 logfile = 'flanlog.log'
-TEST = False
 repeat_interval = 1
 mod_server = 'server'
+TEST = False
 
 cmds_secure = ['part','msg','raw','server','quit','test']
 cmds_disabled = []

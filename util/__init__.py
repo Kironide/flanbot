@@ -2,8 +2,14 @@ import os, imp
 import settings
 import misc
 
-global ircsocks, ircsock, serverof, cparser, rtime
-global loaded
+global ircsocks, ircsock, serverof, cparser, rtime, loaded
+
+def init():
+	global ircsocks, serverof, rtime, loaded
+	ircsocks = []
+	serverof = {}
+	rtime = {}
+	loaded = False
 
 def current_nick():
 	return cparser.nick
