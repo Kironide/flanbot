@@ -1,6 +1,6 @@
 import os, imp
 import settings
-import misc
+import misc, timeutils
 
 global ircsocks, ircsock, serverof, cparser, rtime, loaded
 
@@ -67,8 +67,10 @@ def auth():
 
 # stuff that keeps repeating
 def run_repeat():
-	for repeat in misc.repeats_all():
-		misc.exec_cmd(repeat,None,settings.folder_repeat)
+	if timeutils.now() - rtime[ircsock] >= settings.repeat_interval:
+		rtime[ircsock] = timeutils.now()
+		for repeat in misc.repeats_all():
+			misc.exec_cmd(repeat,None,settings.folder_repeat)
 
 # stuff that should run every iteration of the loop
 def run_before(ircmsg):

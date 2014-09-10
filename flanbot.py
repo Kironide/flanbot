@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 import sys, settings, util, util.parser, util.network, util.misc
 from time import sleep, time
 
@@ -11,9 +10,7 @@ while 1:
 		util.ircsock = ircsock
 
 		# run periodically repeating functions
-		if time() - util.rtime[ircsock] >= settings.repeat_interval:
-			util.rtime[ircsock] = time()
-			util.run_repeat()
+		util.run_repeat()
 
 		# receive data from server
 		try:
