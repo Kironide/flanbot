@@ -1,30 +1,23 @@
 #!/usr/bin/env python
 
-"""
-to-do list:
-- mafia
-- lewd
-- stalk
-- finish implementing dice
-- modify seen to use util.dataio
-"""
-
 import sys, os, settings, util, util.parser, util.network, util.misc
-from time import sleep
+from time import sleep, time
 
 if __name__ == '__main__':
 	util.ircsocks = []
 	util.serverof = {}
+	util.rtime = {}
 	util.loaded = False
 	for server,channels in settings.servers.items():
-		ircsock = util.network.get_socket(server)
-		util.ircsocks.append(ircsock)
-		util.serverof[ircsock] = server
-
+		util.misc.exec_cmd(settings.mod_server,server,settings.folder_mods)
 	while 1:
-		# loop through socket connections indefinitely
 		for ircsock in util.ircsocks:
 			util.ircsock = ircsock
+
+			# run periodically repeating functions
+			if time() - util.rtime[ircsock] >= settings.repeat_interval:
+				util.rtime[ircsock] = time()
+				util.run_repeat()
 
 			# receive data from server
 			try:

@@ -2,7 +2,7 @@ import os, imp
 import settings
 import misc
 
-global ircsocks, ircsock, serverof, cparser
+global ircsocks, ircsock, serverof, cparser, rtime
 global loaded
 
 def current_nick():
@@ -58,6 +58,11 @@ def notice_current(msg):
 def auth():
 	#return False #kaeru please do not abuse the bot while i sleep :^)
 	return current_nick() == 'Kironide'
+
+# stuff that keeps repeating
+def run_repeat():
+	for repeat in misc.repeats_all():
+		misc.exec_cmd(repeat,None,settings.folder_repeat)
 
 # stuff that should run every iteration of the loop
 def run_before(ircmsg):

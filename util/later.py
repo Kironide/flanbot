@@ -1,6 +1,5 @@
 import timeutils, dataio, misc
 import settings
-import os, pickle, time
 
 # returns the pickled object in later.dat
 # creates file with empty dict if it doesn't exist
@@ -23,7 +22,7 @@ def add(nick, user, msg):
 	later = load()
 	if nick not in later:
 		later[nick] = []
-	later[nick].append([time.time(), user, msg])
+	later[nick].append([timeutils.now(), user, msg])
 	save(later)
 	return True
 
@@ -48,7 +47,7 @@ def read(nick):
 				rawmsg.append(msg)
 	to_send = []
 	for item in rawmsg:
-		to_send.append(''+nick+': ('+timeutils.timediff(item[0])+') <'+item[1]+'> '+item[2])
+		to_send.append(''+nick+': ('+timeutils.timediff(item[0])+' ago) <'+item[1]+'> '+item[2])
 	return to_send
 
 # returns true if nick is in later

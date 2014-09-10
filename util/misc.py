@@ -41,6 +41,10 @@ def utils_all():
 def books_all():
 	return [x.replace('.txt','') for x in os.listdir(settings.folder_books+'/') if x.endswith('.txt')]
 
+# returns a list of all repeating events:
+def repeats_all():
+	return [x.replace('.py','')[len(settings.prefix_repeat):] for x in os.listdir(settings.folder_repeat+'/') if x.endswith('.py') and x.startswith(settings.prefix_repeat)]
+
 # execute command
 def exec_cmd(modname,inputstr,folder):
 	pref = ''
@@ -48,13 +52,18 @@ def exec_cmd(modname,inputstr,folder):
 		pref = settings.prefix_mods
 	elif folder == settings.folder_events:
 		pref = settings.prefix_events
+	elif folder == settings.folder_repeat:
+		pref = settings.prefix_repeat
 	path = folder+'/'+pref+modname+'.py'
 	# print('Loading module from: '+path) # this prints a lot
 	mod = imp.load_source(modname,path)
 	if modname in ['server','quit']:
 		mod.main(inputstr)
 	else:
-		p = multiprocessing.Process(target=mod.main,args=(inputstr,))
+		if inputstr == None:
+			p = multiprocessing.Process(target=mod.main)
+		else:
+			p = multiprocessing.Process(target=mod.main,args=(inputstr,))
 		p.start()
 		p.join()
 

@@ -3,6 +3,7 @@ import requests, json, random
 
 def main(cmdtext):
 	s = requests.Session()
+	cmdtext = cmdtext.replace('/','')
 	if cmdtext == '':
 		boards = json.loads(util.html.get_url('http://a.4cdn.org/boards.json'))['boards']
 		rboard = boards[random.randint(1,len(boards))-1]['board']

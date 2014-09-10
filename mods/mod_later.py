@@ -19,7 +19,7 @@ def main(cmdtext,retry=False):
 				add_retry = None
 				later_msg = ' '.join(temp[1:])
 				chan_nicks = util.chaninfo.get_users(util.current_server(),util.current_target())
-				if util.cparser.target_is_channel() and later_nick not in [x.lower() for x in chan_nicks]:
+				if util.cparser.target_is_channel() and later_nick.lower() not in [x.lower() for x in chan_nicks]:
 					match = util.misc.match_input_weak(later_nick,chan_nicks)
 					if match != None and later_nick.lower() != match.lower():
 						util.reply('Did you mean to send that to '+match+'? I\'ll send it as well just in case.')
