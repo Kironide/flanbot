@@ -13,70 +13,68 @@ def save(later):
 	dataio.save_file(settings.datafile_later,later)
 
 # adds a msg to send to the later object
-# nick is the person to send to
-# user is the person who sent it
-def add(nick, user, msg):
-	times = count(nick, user, msg)
+def add(serv, chan, nick_from, nick_to, msg):
+	nick_to = nick_to.lower()
+	times = count(serv, chan, nick_from, nick_to, msg)
 	if times >= 3:
 		return False
 	later = load()
-	if nick not in later:
-		later[nick] = []
-	later[nick].append([timeutils.now(), user, msg])
+	if serv not in later:
+		later[serv] = {}
+	if chan not in later[serv]:
+		later[serv][chan] = {}
+	if nick_to not in later[serv][chan]:
+		later[serv][chan][nick_to] = []
+	later[serv][chan][nick_to].append({'time': timeutils.now(), 'from': nick_from, 'msg': msg})
 	save(later)
 	return True
 
-# removes a user from the later object
-def remove(nick):
+# removes a server/channel/nick combination
+def remove(serv, chan, nick):
 	later = load()
-	to_remove = []
-	for nick_later,msgs in later.items():
-		if nick.lower() == nick_later.lower():
-			to_remove.append(nick_later)
-	for nick_later in to_remove:
-		later.pop(nick_later, None)
+	if serv in later:
+		if chan in later[serv]:
+			if nick.lower() in later[serv][chan]:
+				later[serv][chan].pop(nick.lower(), None)
 	save(later)
 
-# gets a list of messages to send for a certain nick
-def read(nick):
+# gets a list of messages to send for a certain server/channel/nick combination
+def read(serv, chan, nick):
 	later = load()
-	rawmsg = []
-	for nick_later,msgs in later.items():
-		if nick.lower() == nick_later.lower():
-			for msg in msgs:
-				rawmsg.append(msg)
 	to_send = []
-	for item in rawmsg:
-		to_send.append(''+nick+': ('+timeutils.timediff(item[0])+' ago) <'+item[1]+'> '+item[2])
+	if serv in later:
+		if chan in later[serv]:
+			if nick.lower() in later[serv][chan]:
+				for msg in later[serv][chan][nick.lower()]:
+					to_send.append(''+nick+': ('+timeutils.timediff(msg['time'])+' ago) <'+msg['from']+'> '+msg['msg'])
 	return to_send
 
-# returns true if nick is in later
-def later_contains(nick, later=None):
-	if later == None:
-		later = load()
-	for nick_later,msgs in later.items():
-		if nick.lower() == nick_later.lower():
-			return True
+# returns true if server/channel/nick is in later
+def later_contains(serv, chan, nick):
+	later = load()
+	if serv in later:
+		if chan in later[serv]:
+			if nick.lower() in later[serv][chan]:
+				return True
 	return False
 
 # number of times a message is recorded for someone
-def count(nick, user, msg):
+def count(serv, chan, nick_from, nick_to, msg):
 	later = load()
 	times = 0
-	for nick_later,msgs in later.items():
-		if nick.lower() == nick_later.lower():
-			for item in msgs:
-				if msg == item[2] and user.lower() == item[1].lower():
-					times += 1
+	if serv in later:
+		if chan in later[serv]:
+			if nick_to in later[serv][chan]:
+				for item in later[serv][chan][nick_to]:
+					if item['msg'] == msg and item['from'].lower() == nick_from.lower():
+						times += 1
 	return times
 
 # checks for msgs
-def check(nick, later=None):
-	if later == None:
-		later = load()
-	if later_contains(nick,later):
-		messages = read(nick)
-		remove(nick)
+def check(serv, chan, nick):
+	if later_contains(serv, chan, nick):
+		messages = read(serv, chan, nick)
+		remove(serv, chan, nick)
 		messages.reverse()
 		return messages
 	return []

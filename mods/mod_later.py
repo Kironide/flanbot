@@ -23,8 +23,8 @@ def main(cmdtext,retry=False):
 					match = util.misc.match_input_weak(later_nick,chan_nicks)
 					if match != None and later_nick.lower() != match.lower():
 						util.reply('Did you mean to send that to '+match+'? I\'ll send it as well just in case.')
-						add_retry = util.later.add(match, util.current_nick(), later_msg)
-				add = util.later.add(later_nick, util.current_nick(), later_msg)
+						add_retry = util.later.add(util.current_server(), util.current_target(), util.current_nick(), match, later_msg)
+				add = util.later.add(util.current_server(), util.current_target(), util.current_nick(), later_nick, later_msg)
 				if add and add_retry == True:
 					util.reply_safe('Messages to '+later_nick+' and '+match+' recorded.')
 					return
