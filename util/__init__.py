@@ -2,14 +2,16 @@ import os, imp
 import settings
 import misc, timeutils
 
-global ircsocks, ircsock, serverof, cparser, rtime, loaded
+global ircsocks, ircsock, serverof, cparser, rtime
 
+# initializes the bot, setting default values and connecting to default servers
 def init():
-	global ircsocks, serverof, rtime, loaded
+	global ircsocks, serverof, rtime
 	ircsocks = []
 	serverof = {}
 	rtime = {}
-	loaded = False
+	for server,channels in settings.servers.items():
+		misc.exec_cmd(settings.mod_server,server,settings.folder_mods)
 
 def current_nick():
 	return cparser.nick
@@ -80,10 +82,6 @@ def run_before(ircmsg):
 
 # stuff to run after cmd parsing
 def run_after(ircmsg):
-	global loaded
-	if not loaded:
-		loaded = True
-
 	# quit from removed servers
 	if ircsock not in ircsocks:
 		quit()

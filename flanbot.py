@@ -1,10 +1,7 @@
 #!/usr/bin/env python
-import sys, settings, util, util.parser, util.network, util.misc
-from time import sleep, time
+import sys, settings, util, util.parser, util.misc
 
 util.init()
-for server,channels in settings.servers.items():
-	util.misc.exec_cmd(settings.mod_server,server,settings.folder_mods)
 while 1:
 	for ircsock in util.ircsocks:
 		util.ircsock = ircsock
@@ -28,33 +25,23 @@ while 1:
 				f.write(ircmsg+'\n')
 
 			try:
-				# step 1 of 4: check for reload command
-				if p.trigger_cmd():
-					if not p.from_self():
-						util.cparser = p
-					if p.is_command() and p.get_command() == 'reload':
-						reload(util)
-						reload(settings)
-						util_modules = util.misc.utils_all()
-						for util_mod in util_modules:
-							__import__(util_mod)
-							reload(sys.modules[util_mod])
-						util.loaded = False
-						util.reply_safe(settings.msg_reload)
+				if p.trigger_cmd() and not p.from_self():
+					util.cparser = p
 
-				# step 2 of 3: run pre-command things
+				# check for reload command
+				if p.is_command() and p.get_command() == 'reload':
+					reload(util)
+					reload(settings)
+					for util_mod in util.misc.utils_all():
+						__import__(util_mod)
+						reload(sys.modules[util_mod])
+					util.reply_safe(settings.msg_reload)
+
+				# run events, process commands, etc.
 				util.run_before(ircmsg)
-
-				# step 3 of 4: run non-reload commands
-				if p.trigger_cmd():
-					if not p.from_self():
-						util.cparser = p
-					if p.is_command() and p.get_command() != 'reload':
-						util.irccommand(p.get_command(), p.get_cmdtext())
-
-				# step 4 of 4: run post-command things
+				if p.is_command() and p.get_command() != 'reload':
+					util.irccommand(p.get_command(), p.get_cmdtext())
 				util.run_after(ircmsg)
-
 			except Exception, e:
 				util.misc.handle_exception(e)
 				if p.trigger_cmd():
