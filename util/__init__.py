@@ -1,17 +1,23 @@
 import os, imp
 import settings
-import misc, timeutils
+import misc, timeutils, network
 
-global ircsocks, ircsock, serverof, cparser, rtime
+global ircsocks, ircsock, serverof, cparser, rtime, psent, precv
 
 # initializes the bot, setting default values and connecting to default servers
 def init():
-	global ircsocks, serverof, rtime
+	global ircsocks, serverof, rtime, psent, precv
 	ircsocks = []
 	serverof = {}
 	rtime = {}
+	psent = {}
+	precv = {}
 	for server,channels in settings.servers.items():
-		misc.exec_cmd(settings.mod_server,server,settings.folder_mods)
+		misc.exec_cmd(settings.cmd_server,server,settings.folder_mods)
+
+def handle_msg(ircmsg):
+	if ' ' in ircmsg and ircmsg.split(' ')[1] != 'PONG':
+		print(ircmsg)
 
 def current_nick():
 	return cparser.nick
@@ -28,9 +34,16 @@ def current_sock():
 def current_server():
 	return serverof[ircsock]
 
+def inc_psent():
+	psent[ircsock] += 1
+	psent[ircsock] = psent[ircsock] % settings.ping_modulus
+def inc_precv():
+	precv[ircsock] += 1
+	precv[ircsock] = precv[ircsock] % settings.ping_modulus
+
 def raw(msg):
 	ircsock.send(msg+'\n')
-def ping(msg):
+def pong(msg):
 	ircsock.send('PONG :'+msg+'\n')
 def sendmsg(chan, msg):
 	ircsock.send('PRIVMSG '+chan+' :'+str(msg)+'\n')
@@ -40,10 +53,21 @@ def joinchan(chan):
 	ircsock.send('JOIN '+chan+'\n')
 def partchan(chan):
 	ircsock.send('PART '+chan+'\n')
+def quit_server():
+	ircsocks.remove(ircsock)
 def quit():
 	ircsock.send('QUIT :'+settings.msg_quit+'\n')
 def change_nick(nick):
 	ircsock.send('NICK '+nick+'\n')
+def ping_server():
+	ircsock.send('PING '+current_server()+'\n')
+def connect(serv):
+	ircsock = network.get_socket(serv)
+	ircsocks.append(ircsock)
+	serverof[ircsock] = serv
+	rtime[ircsock] = timeutils.now()
+	psent[ircsock] = 0
+	precv[ircsock] = 0
 
 def nickserv_identify(pw, service='NickServ'):
 	sendmsg(service,'identify '+pw)
@@ -74,11 +98,26 @@ def run_repeat():
 		for repeat in misc.repeats_all():
 			misc.exec_cmd(repeat,None,settings.folder_repeat)
 
+		# checks for timeout
+		ping_diff = psent[ircsock] - precv[ircsock]
+		if ping_diff > settings.ping_timeout_limit:
+			print('Timeout detected!')
+			quit_server()
+			connect(serverof[ircsock])
+
+		# sends regular ping to server
+		ping_server()
+		inc_psent()
+
 # stuff that should run every iteration of the loop
 def run_before(ircmsg):
 	# runs events
 	for event in misc.events_all():
 		misc.exec_cmd(event,ircmsg.strip(),settings.folder_events)
+
+	# checks for pong response to our pings
+	if ' ' in ircmsg and ircmsg.split(' ')[1] == 'PONG':
+		inc_precv()
 
 # stuff to run after cmd parsing
 def run_after(ircmsg):

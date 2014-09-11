@@ -1,23 +1,12 @@
-import timeutils
+import timeutils, dataio
 import settings
 import os, pickle
 
-def seen_getdata():
-	# create data file if it doesn't exist
-	if not os.path.exists(settings.datafile_seen):
-		with open(settings.datafile_seen,'w') as f:
-			temp = {}
-			pickle.dump(temp,f)
+def load():
+	return dataio.load_file(settings.datafile_seen,{})
 
-	# load data
-	with open(settings.datafile_seen,'r') as f:
-		seen_data = pickle.load(f)
-
-	return seen_data
-
-def seen_savedata(seen_data):
-	with open(settings.datafile_seen,'w') as f:
-		pickle.dump(seen_data,f)
+def save(seen_data):
+	dataio.save_file(settings.datafile_seen,seen_data)
 
 # save data about someone in dict
 # removes the last entry in the list and appends new data to the front
@@ -27,7 +16,7 @@ def seen_save(ts, nick, dtype, target, msg):
 	nick = nick.lower()
 
 	# load seen data
-	seen_data = seen_getdata()
+	seen_data = load()
 
 	# if nick isn't in the data, then create an empty entry
 	if nick not in seen_data:
@@ -46,7 +35,7 @@ def seen_save(ts, nick, dtype, target, msg):
 	seen_data[nick].insert(0,item)
 
 	# save it
-	seen_savedata(seen_data)
+	save(seen_data)
 
 # converts a [timestamp, dtype,target,msg] list to a phrase
 def seen_dataconv(data):
@@ -66,7 +55,7 @@ def seen_dataconv(data):
 # returns things to say about a user
 def seen_lookup(nick):
 	nick = nick.lower()
-	seen_data = seen_getdata()
+	seen_data = load()
 	if nick not in seen_data:
 		return 'That user has never been seen before.'
 	rawdata = seen_data[nick]

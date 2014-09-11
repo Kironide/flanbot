@@ -11,9 +11,9 @@ def main(ircmsg):
 					nicks[i] = nicks[i][1:]
 		util.chaninfo.add_channel(util.current_server(),p.rpl_namreply_chan(),nicks)
 	elif p.trigger_chaninfo():
-		if p.dtype == 'QUIT':
+		if p.dtype_quit():
 			util.chaninfo.remove_nick_serv(util.current_server(),p.nick)
-		elif p.dtype == 'PART':
+		elif p.dtype_part():
 			util.chaninfo.remove_nick_chan(util.current_server(),p.target,p.nick)
-		elif p.dtype == 'JOIN':
+		elif p.dtype_join():
 			util.chaninfo.add_nick_chan(util.current_server(),p.target,p.nick)

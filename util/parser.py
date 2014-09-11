@@ -66,6 +66,8 @@ class Parser:
 		return self.from_user() and self.dtype in ['PRIVMSG','QUIT','PART','JOIN','NOTICE']
 	def trigger_chaninfo(self):
 		return self.from_user() and self.dtype in ['QUIT','PART','JOIN']
+	def trigger_reload(self):
+		return self.get_command() == settings.cmd_reload
 
 	def is_command(self):
 		return self.trigger_cmd() and self.text.startswith(settings.prefix)
@@ -88,3 +90,10 @@ class Parser:
 		return self.from_server() and self.dtype == 433
 	def err_nicknameinuse_nick(self):
 		return self.other[len(self.other)-1]
+
+	def dtype_join(self):
+		return self.from_user() and self.dtype == 'JOIN'
+	def dtype_part(self):
+		return self.from_user() and self.dtype == 'PART'
+	def dtype_quit(self):
+		return self.from_user() and self.dtype == 'QUIT'

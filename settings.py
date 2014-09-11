@@ -4,9 +4,12 @@ realname = 'Flandre Scarlet'
 prefix = '~'
 logfile = 'flanlog.log'
 repeat_interval = 1
-mod_server = 'server'
+cmd_server = 'server'
+cmd_reload = 'reload'
 TEST = False
 time_parse_truncate = 3
+ping_modulus = 100000
+ping_timeout_limit = 5
 
 cmds_secure = ['part','msg','raw','server','quit','test']
 cmds_disabled = []

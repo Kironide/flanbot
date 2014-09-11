@@ -17,7 +17,7 @@ while 1:
 			continue # if there is no data to read
 
 		for ircmsg in ircmsgs:
-			print(ircmsg)
+			util.handle_msg(ircmsg)
 			p = util.parser.get_parser(ircmsg)
 
 			# write irc messages to a log file
@@ -29,7 +29,7 @@ while 1:
 					util.cparser = p
 
 				# check for reload command
-				if p.is_command() and p.get_command() == 'reload':
+				if p.is_command() and p.trigger_reload():
 					reload(util)
 					reload(settings)
 					for util_mod in util.misc.utils_all():
@@ -39,7 +39,7 @@ while 1:
 
 				# run events, process commands, etc.
 				util.run_before(ircmsg)
-				if p.is_command() and p.get_command() != 'reload':
+				if p.is_command() and not p.trigger_reload():
 					util.irccommand(p.get_command(), p.get_cmdtext())
 				util.run_after(ircmsg)
 			except Exception, e:
