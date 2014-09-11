@@ -6,6 +6,7 @@ logfile = 'flanlog.log'
 repeat_interval = 1
 mod_server = 'server'
 TEST = False
+time_parse_truncate = 3
 
 cmds_secure = ['part','msg','raw','server','quit','test']
 cmds_disabled = []

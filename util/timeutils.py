@@ -1,4 +1,5 @@
 import time, math, parsedatetime
+import settings
 
 # returns the formatted time difference between a timestamp and current time
 def timediff(ts):
@@ -34,6 +35,11 @@ def validate(text):
 def split_input(text):
 	ctime = time.gmtime(now())
 	words = text.split(' ')
+	if len(words) >= settings.time_parse_truncate:
+		words_old = words[settings.time_parse_truncate:]
+		words = words[:settings.time_parse_truncate]
+	else:
+		words_old = []
 	prev = None
 	prev_substr = ''
 	fin = True
@@ -49,4 +55,4 @@ def split_input(text):
 	if fin:
 		return '',text
 	else:
-		return prev_substr,text.replace(prev_substr,'').strip()
+		return prev_substr,text.replace(prev_substr,'',1).strip()
