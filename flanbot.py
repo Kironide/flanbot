@@ -26,11 +26,13 @@ class FlanBot:
 			for server in settings.servers:
 				self.connect_server(server)
 
+	# prints server message, writes to logfile, and returns parser class instance
 	def handle_msg(self, ircmsg):
 		if ' ' in ircmsg and ircmsg.split(' ')[1] != 'PONG':
 			print(ircmsg)
 		with open(settings.logfile,'a') as f:
 			f.write(ircmsg+'\n')
+		return util.parser.get_parser(ircmsg)
 
 	def current_nick(self):
 		return self.cparser.nick
@@ -56,6 +58,12 @@ class FlanBot:
 
 	def send(self, msg):
 		self.ircsock.send(msg+'\n')
+	def receive(self):
+		try:
+			return self.ircsock.recv(settings.recv_data_amount).strip('\r\n').split('\r\n')
+		except:
+			return []
+
 	def ping(self):
 		self.send('PING '+self.current_server()+'\n')
 	def pong(self, msg):
@@ -120,7 +128,8 @@ class FlanBot:
 			self.ping()
 			self.inc_psent()
 
-	def run_before(self, ircmsg):
+	def run_actions(self, ircmsg, parser):
+		# executes events in the events folder
 		for event in util.misc.events_all():
 			self.exec_cmd(event,ircmsg.strip(),settings.folder_events)
 
@@ -128,7 +137,11 @@ class FlanBot:
 		if ' ' in ircmsg and ircmsg.split(' ')[1] == 'PONG':
 			self.inc_precv()
 
-	def run_after(self, ircmsg):
+		# executes commands from users
+		if parser.is_command() and not parser.trigger_reload():
+			self.irccommand(parser.get_command(), parser.get_cmdtext())
+
+		# quits connections no longer in sockets list
 		if self.ircsock not in self.ircsocks:
 			self.quit()
 

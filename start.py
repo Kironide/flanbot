@@ -9,16 +9,10 @@ while 1:
 		bot.run_repeat()
 
 		# receive data from server
-		try:
-			ircmsgs = ircsock.recv(settings.recv_data_amount).strip('\r\n').split('\r\n')
-		except:
-			ircmsgs = []
-			continue # if there is no data to read
+		ircmsgs = bot.receive()
 
 		for ircmsg in ircmsgs:
-			bot.handle_msg(ircmsg)
-			p = util.parser.get_parser(ircmsg)
-
+			p = bot.handle_msg(ircmsg)
 			try:
 				if p.trigger_cmd() and not p.from_self():
 					bot.cparser = p
@@ -34,10 +28,7 @@ while 1:
 					bot.reply_safe(settings.msg_reload)
 
 				# run events, process commands, etc.
-				bot.run_before(ircmsg)
-				if p.is_command() and not p.trigger_reload():
-					bot.irccommand(p.get_command(), p.get_cmdtext())
-				bot.run_after(ircmsg)
+				bot.run_actions(ircmsg, p)
 			except Exception, e:
 				util.misc.handle_exception(e)
 				if p.trigger_cmd():
