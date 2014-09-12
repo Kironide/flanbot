@@ -1,7 +1,7 @@
-import util, util.html
+import util.html
 import requests, json, random
 
-def main(cmdtext):
+def main(bot, cmdtext):
 	s = requests.Session()
 	cmdtext = cmdtext.replace('/','')
 	if cmdtext == '':
@@ -23,7 +23,7 @@ def main(cmdtext):
 			post = util.html.format_entities(util.html.strip_tags(rthread['com'].replace('<br>',' '))).encode('utf-8')
 			if len(post) > 150:
 				post = post[:150] + '...'
-			util.reply('http://boards.4chan.org/'+cmdtext+'/thread/'+str(rthread['no'])+' Subject: '+subj+', Post: '+post)
+			bot.reply('http://boards.4chan.org/'+cmdtext+'/thread/'+str(rthread['no'])+' Subject: '+subj+', Post: '+post)
 		except Exception, e:
-			util.reply_safe('Invalid board selection.')
+			bot.reply_safe('Invalid board selection.')
 			print(e)

@@ -1,5 +1,3 @@
-import util
-
-def main(cmdtext):
-	util.raw(cmdtext)
+def main(bot, cmdtext):
+	bot.send(cmdtext)
 	print('Sending this to the server: '+cmdtext)

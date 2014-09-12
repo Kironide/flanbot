@@ -1,6 +1,5 @@
-import util
 import util.seen
 
-def main(cmdtext):
+def main(bot, cmdtext):
 	nick = cmdtext.split(' ')[0]
-	util.reply_safe(util.seen.seen_lookup(nick))
+	bot.reply_safe(util.seen.seen_lookup(nick))

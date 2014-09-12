@@ -1,7 +1,7 @@
-import util, settings
+import settings
 
-def main(cmdtext):
-	server = util.serverof[util.ircsock]
+def main(bot, cmdtext):
+	server = bot.serverof[bot.ircsock]
 	channels = settings.servers[server]
 	for chan in channels:
-		util.joinchan(chan)
+		bot.join(chan)

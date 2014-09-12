@@ -1,4 +1,2 @@
-import util
-
-def main(cmdtext):
-	util.connect(cmdtext.split(' ')[0])
+def main(bot, cmdtext):
+	bot.connect_server(cmdtext.split(' ')[0])

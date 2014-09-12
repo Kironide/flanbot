@@ -1,8 +1,6 @@
-import util
-
-def main(cmdtext):
+def main(bot, cmdtext):
 	if cmdtext == '':
-		if util.cparser.target_is_channel():
-			util.partchan(util.current_target())
+		if bot.cparser.target_is_channel():
+			bot.part(bot.current_target())
 	else:
-		util.partchan(cmdtext.split(' ')[0])
+		bot.part(cmdtext.split(' ')[0])

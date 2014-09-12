@@ -1,4 +1,2 @@
-import util
-
-def main(cmdtext):
-	util.quit_server()
+def main(bot, cmdtext):
+	bot.quit_server()

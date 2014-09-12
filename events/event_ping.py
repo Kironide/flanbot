@@ -1,7 +1,5 @@
-import util
-
-def main(ircmsg):
+def main(bot, ircmsg):
 	if ircmsg.find('PING :') != -1:
 		ping_msg = ircmsg.split('PING :')
 		ping_msg = ping_msg[len(ping_msg)-1].strip()
-		util.pong(ping_msg)
+		bot.pong(ping_msg)

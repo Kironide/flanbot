@@ -1,5 +1,5 @@
 # miscellaneous
-import random, os, imp, multiprocessing, itertools
+import random, os, itertools
 import settings
 from pyxdameraulevenshtein import damerau_levenshtein_distance as distance
 from pyxdameraulevenshtein import normalized_damerau_levenshtein_distance as norm_distance
@@ -44,28 +44,6 @@ def books_all():
 # returns a list of all repeating events:
 def repeats_all():
 	return [x.replace('.py','')[len(settings.prefix_repeat):] for x in os.listdir(settings.folder_repeat+'/') if x.endswith('.py') and x.startswith(settings.prefix_repeat)]
-
-# execute command
-def exec_cmd(modname,inputstr,folder):
-	pref = ''
-	if folder == settings.folder_mods:
-		pref = settings.prefix_mods
-	elif folder == settings.folder_events:
-		pref = settings.prefix_events
-	elif folder == settings.folder_repeat:
-		pref = settings.prefix_repeat
-	path = folder+'/'+pref+modname+'.py'
-	# print('Loading module from: '+path) # this prints a lot
-	mod = imp.load_source(modname,path)
-	if modname in ['server','quit']:
-		mod.main(inputstr)
-	else:
-		if inputstr == None:
-			p = multiprocessing.Process(target=mod.main)
-		else:
-			p = multiprocessing.Process(target=mod.main,args=(inputstr,))
-		p.start()
-		p.join()
 
 # attempts to match some malformed input against a list of potentially correct inputst
 # returns (guess, supplement) where supplement is a potentially incorrectly appended substring of the malformed input

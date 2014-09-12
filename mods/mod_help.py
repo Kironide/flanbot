@@ -1,11 +1,11 @@
-import util, util.misc
+import util.misc
 import settings
 
-def main(cmdtext):
+def main(bot, cmdtext):
 	cmds_all = util.misc.cmds_all()
 
 	if cmdtext == '':
-		util.notice_current('Currently available commands are: '+', '.join(cmds_all)+'. Type '+settings.prefix+'help [command] for a detailed description.')
+		bot.reply_notice('Currently available commands are: '+', '.join(cmds_all)+'. Type '+settings.prefix+'help [command] for a detailed description.')
 	else:
 		help_text = {
 		'help':			'Syntax: help [optional: command]. Displays help.'
@@ -29,8 +29,8 @@ def main(cmdtext):
 			help_text[cmd_temp] = help_text[cmd_temp].replace('Syntax: ','Syntax: '+settings.prefix)
 		help_cmd = cmdtext.split(' ')[0]
 		if help_cmd in help_text:
-			util.notice_current(help_text[help_cmd])
+			bot.reply_notice(help_text[help_cmd])
 		elif help_cmd not in cmds_all:
-			util.notice_current('That command does not exist.')
+			bot.reply_notice('That command does not exist.')
 		else:
-			util.notice_current('Sorry, no help text has been set for that command yet.')
+			bot.reply_notice('Sorry, no help text has been set for that command yet.')

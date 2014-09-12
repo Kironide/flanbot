@@ -1,7 +1,5 @@
-import util
-
-def main(cmdtext):
+def main(bot, cmdtext):
 	if cmdtext.split(' ')[0].lower() == '#dontjoinitsatrap':
-		util.reply_safe('Nice try, nerd.')
+		bot.reply_safe('Nice try, nerd.')
 	else:
-		util.joinchan(cmdtext)
+		bot.join(cmdtext)

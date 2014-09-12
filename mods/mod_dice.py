@@ -1,3 +1,3 @@
-import util, random
-def main(cmdtext):
-	util.reply(str(random.randint(1,6)))
+import random
+def main(bot, cmdtext):
+	bot.reply(str(random.randint(1,6)))

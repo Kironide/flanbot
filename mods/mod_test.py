@@ -1,4 +1,2 @@
-import util
-
-def main(cmdtext):
+def main(bot, cmdtext):
 	print('S')

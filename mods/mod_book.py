@@ -1,9 +1,9 @@
-import util, util.books
+import util.books
 import settings
 
-def main(cmdtext):
+def main(bot, cmdtext):
 	sentence = util.books.random_sentence(cmdtext.split(' ')[0])
 	if sentence != settings.msg_nobook:
-		util.reply(sentence)
+		bot.reply(sentence)
 	else:
-		util.reply_safe(sentence)
+		bot.reply_safe(sentence)
