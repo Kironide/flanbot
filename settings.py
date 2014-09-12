@@ -6,10 +6,13 @@ logfile = 'flanlog.log'
 repeat_interval = 1
 cmd_server = 'server'
 cmd_reload = 'reload'
-TEST = True
+TEST = False
 time_parse_truncate = 3
 ping_modulus = 100000
 ping_timeout_limit = 5
+integral_steps = 50000
+const_pi = 3.14159265359
+const_e = 2.71828
 
 cmds_secure = ['part','msg','raw','server','quit','test']
 cmds_disabled = []
@@ -69,4 +72,5 @@ responses = [
 ,'. For you.'
 ,'. Sasuga onii-sama!'
 ,', onii-chan!'
+,'. For you, onii-chan!'
 ]

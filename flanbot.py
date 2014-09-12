@@ -2,16 +2,13 @@
 import util.parser, util.misc, util.timeutils, util.network
 import settings
 
-def copy_bot(bot):
-	copy = FlanBot()
-	copy.ircsocks = bot.ircsocks
-	copy.serverof = bot.serverof
-	copy.rtime = bot.rtime
-	copy.psent = bot.psent
-	copy.precv = bot.precv
-	copy.cparser = bot.cparser
-	copy.ircsock = bot.ircsock
-	return copy
+class Connection:
+	def __init__(self, server):
+		self.server = server
+		self.socket = util.network.get_socket(server)
+		self.rtime = util.timeutils.now()
+		self.psent = 0
+		self.precv = 0
 
 class FlanBot:
 	def __init__(self, copy=False):
@@ -89,7 +86,7 @@ class FlanBot:
 		self.psent[ircsock] = 0
 		self.precv[ircsock] = 0
 	def quit_server(self):
-		self.ircsocks.remove(ircsock)
+		self.ircsocks.remove(self.ircsock)
 
 	def nickserv_identify(self, pw):
 		self.send_msg('NickServ','identify '+pw)
@@ -203,3 +200,14 @@ class FlanBot:
 				p = multiprocessing.Process(target=mod.main,args=(self,inputstr,))
 			p.start()
 			p.join()
+
+def copy_bot(bot):
+	copy = FlanBot()
+	copy.ircsocks = bot.ircsocks
+	copy.serverof = bot.serverof
+	copy.rtime = bot.rtime
+	copy.psent = bot.psent
+	copy.precv = bot.precv
+	copy.cparser = bot.cparser
+	copy.ircsock = bot.ircsock
+	return copy

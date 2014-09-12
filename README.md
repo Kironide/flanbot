@@ -7,3 +7,5 @@ Requirements:
 - textblob
 - parsedatetime
 - other stuff I can't remember
+
+Reminder: weird chaninfo bug with Cubey

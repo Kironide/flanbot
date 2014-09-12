@@ -1,7 +1,6 @@
 import settings
 
 def main(bot, cmdtext):
-	server = bot.serverof[bot.ircsock]
-	channels = settings.servers[server]
-	for chan in channels:
-		bot.join(chan)
+	if bot.current_server() in settings.servers:
+		for chan in settings.servers[bot.current_server()]:
+			bot.join(chan)

@@ -7,7 +7,7 @@ def main(bot, cmdtext):
 	if cmdtext == '':
 		boards = json.loads(util.html.get_url('http://a.4cdn.org/boards.json'))['boards']
 		rboard = boards[random.randint(1,len(boards))-1]['board']
-		main(rboard)
+		main(bot, rboard)
 	else:
 		try:
 			cat = json.loads(util.html.get_url('http://a.4cdn.org/'+cmdtext.split(' ')[0]+'/catalog.json'))

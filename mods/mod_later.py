@@ -12,7 +12,7 @@ def main(bot, cmdtext, retry=False):
 		else:
 			temp = cmdtext.split(' ')
 			later_nick = temp[0]
-			if len(later_nick) >= 3 and later_nick[:3].lower() == 'xpc':
+			if len(later_nick) >= 3 and later_nick[:3].lower() == 'xpc' and not bot.current_nick().startswith('xpc'):
 				bot.reply_safe('You know he doesn\'t like that.')
 				return False
 			else:
