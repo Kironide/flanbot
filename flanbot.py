@@ -2,21 +2,35 @@
 import util.parser, util.misc, util.timeutils, util.network
 import settings
 
+def copy_bot(bot):
+	copy = FlanBot()
+	copy.ircsocks = bot.ircsocks
+	copy.serverof = bot.serverof
+	copy.rtime = bot.rtime
+	copy.psent = bot.psent
+	copy.precv = bot.precv
+	copy.cparser = bot.cparser
+	copy.ircsock = bot.ircsock
+	return copy
+
 class FlanBot:
-	def __init__(self):
-		self.ircsocks = []
-		self.serverof = {}
-		self.rtime = {}
-		self.psent = {}
-		self.precv = {}
-		self.cparser = None
-		self.ircsock = None
-		for server in settings.servers:
-			self.connect_server(server)
+	def __init__(self, copy=False):
+		if not copy:
+			self.ircsocks = []
+			self.serverof = {}
+			self.rtime = {}
+			self.psent = {}
+			self.precv = {}
+			self.cparser = None
+			self.ircsock = None
+			for server in settings.servers:
+				self.connect_server(server)
 
 	def handle_msg(self, ircmsg):
 		if ' ' in ircmsg and ircmsg.split(' ')[1] != 'PONG':
 			print(ircmsg)
+		with open(settings.logfile,'a') as f:
+			f.write(ircmsg+'\n')
 
 	def current_nick(self):
 		return self.cparser.nick
