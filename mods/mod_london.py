@@ -9,3 +9,5 @@ def main(bot, cmdtext):
 
 	temp.reverse()
 	messages.append(' '.join(temp))
+
+	bot.reply_list(messages)
