@@ -6,6 +6,8 @@ def main(bot, cmdtext, retry=False):
 			bot.reply_safe('Command has too few arguments.')
 		else:
 			main(bot, cmdtext[5:])
+	elif cmdtext[:5] == 'view ':
+		bot.reply_safe('succ')
 	else:
 		if len(cmdtext.split(' ')) < 2:
 			bot.reply_safe('Command has too few arguments.')
