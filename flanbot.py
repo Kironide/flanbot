@@ -96,7 +96,7 @@ class FlanBot:
 			msg = msg[:len(msg)-1]
 		self.reply(msg + util.misc.randext())
 	def reply_notice(self, msg):
-		self.conn.send_notice(self.current_nick(),msg)
+		self.send_notice(self.current_nick(),msg)
 
 	def auth(self):
 		return self.current_nick() == 'Kironide'
