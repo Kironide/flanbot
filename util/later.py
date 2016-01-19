@@ -103,7 +103,7 @@ def read_from(serv, chan, nick_from):
 	for row in c.execute("SELECT * FROM later WHERE server = '{0}' AND channel = '{1}'".format(serv, chan)):
 		if nick_from.lower() == row[3].lower():
 			time_diff = timeutils.timediff(float(row[2]))
-			messages.append("{0} to {1} ({2}): {3}".format(row[3], row[4], time_diff, row[5]))
+			messages.append("{0} to {1} ({2}): {3}".format(row[3], row[4], time_diff, row[5]).encode("utf-8"))
 	c.close()
 
 	return messages
@@ -116,7 +116,7 @@ def read_to(serv, chan, nick_to):
 	for row in c.execute("SELECT * FROM later WHERE server = '{0}' AND channel = '{1}'".format(serv, chan)):
 		if nick_to.lower() == row[4].lower():
 			time_diff = timeutils.timediff(float(row[2]))
-			messages.append("{0} to {1} ({2}): {3}".format(row[3], row[4], time_diff, row[5]))
+			messages.append("{0} to {1} ({2}): {3}".format(row[3], row[4], time_diff, row[5]).encode("utf-8"))
 	c.close()
 
 	return messages
