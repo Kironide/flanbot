@@ -9,17 +9,6 @@ def init():
 		c.commit()
 		c.close()
 
-# returns the pickled object in later.dat
-# creates file with empty dict if it doesn't exist
-# keys are usernames, values are lists of messages
-# each message is stored as [timestamp, fromuser, msg]
-def load():
-	return dataio.load_file(settings.datafile_later,{})
-
-# save the later object to later.dat
-def save(later):
-	dataio.save_file(settings.datafile_later,later)
-
 # adds a msg to send to the later object
 def add(serv, chan, nick_from, nick_to, msg):
 	nick_to = nick_to.lower()
@@ -78,6 +67,7 @@ def count(serv, chan, nick_from, nick_to, msg):
 
 # checks for msgs
 def check(serv, chan, nick):
+	init()
 	if later_contains(serv, chan, nick):
 		messages = read(serv, chan, nick)
 		remove(serv, chan, nick)
