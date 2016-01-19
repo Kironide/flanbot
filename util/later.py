@@ -48,7 +48,7 @@ def read(serv, chan, nick):
 	c = sqlite3.connect(settings.datafile_later)
 	for row in c.execute("SELECT * FROM later WHERE serv = '{0}' AND chan = '{1}' AND nick_to = '{2}'".format(serv, chan, nick)):
 		timetamp, nick_from, msg = float(row[2]), row[3], row[5]
-			to_send.append("{0}: ({1} ago) <{2}> {3}".format(nick, timeutils.timediff(timestamp), nick_from, msg))
+		to_send.append("{0}: ({1} ago) <{2}> {3}".format(nick, timeutils.timediff(timestamp), nick_from, msg))
 	c.commit()
 	c.close()
 
