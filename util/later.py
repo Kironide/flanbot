@@ -5,7 +5,7 @@ import settings
 def init():
 	if not os.path.exists(settings.datafile_later):
 		c = sqlite3.connect(settings.datafile_later)
-		c.execute("CREATE TABLE later (server text, channel text, time text, from text, to text, msg text)")
+		c.execute("CREATE TABLE later (server text, channel text, time text, nick_from text, nick_to text, msg text)")
 		c.commit()
 		c.close()
 
