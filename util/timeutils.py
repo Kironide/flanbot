@@ -22,6 +22,10 @@ def timediff(ts):
 def now():
 	return time.time()
 
+# sleeps
+def sleep(duration):
+	time.sleep(duration)
+
 # returns timestamp corresponding to user input
 def parse(text):
 	cal = parsedatetime.Calendar()

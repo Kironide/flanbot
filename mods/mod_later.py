@@ -29,9 +29,9 @@ def main(bot, cmdtext, retry=False):
 					count = 1
 					max_count = len(messages)
 					for m in messages:
-						bot.reply("{0}/{1} ".format(str(count), str(max_count)) + m)
-						time.sleep(0.5)
+						m = "({0}/{1}) ".format(str(count), str(max_count)) + m
 						count += 1
+					bot.reply_list(messages)
 					bot.reply_safe("I'm done listing messages {0} {1}.".format(choice, nick))
 
 		else:
