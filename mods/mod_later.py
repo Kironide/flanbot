@@ -19,9 +19,9 @@ def main(bot, cmdtext, retry=False):
 				bot.reply_safe("The second argument must be either 'from' or 'to'.")
 			else:
 				if choice == "from":
-					messages = util.later.read_from(bot.current_server(), bot.current_channel(), nick)
+					messages = util.later.read_from(bot.current_server(), bot.current_target(), nick)
 				elif choice == "to":
-					messages = util.later.read_to(bot.current_server(), bot.current_channel(), nick)
+					messages = util.later.read_to(bot.current_server(), bot.current_target(), nick)
 				if len(messages) == 0:
 					bot.reply_safe("No messages to show.")
 				else:
