@@ -49,7 +49,6 @@ def read(serv, chan, nick):
 	for row in c.execute("SELECT * FROM later WHERE server = '{0}' AND channel = '{1}' AND nick_to = '{2}'".format(serv, chan, nick.lower())):
 		timestamp, nick_from, msg = float(row[2]), row[3], row[5]
 		to_send.append("{0}: ({1} ago) <{2}> {3}".format(nick, timeutils.timediff(timestamp), nick_from, msg))
-	c.commit()
 	c.close()
 
 	return to_send
@@ -59,7 +58,6 @@ def later_contains(serv, chan, nick):
 	c = sqlite3.connect(settings.datafile_later)
 	for row in c.execute("SELECT * FROM later WHERE server = '{0}' AND channel = '{1}' AND nick_to = '{2}'".format(serv, chan, nick.lower())):
 		return True
-	c.commit()
 	c.close()
 	return False
 
@@ -71,7 +69,6 @@ def count(serv, chan, nick_from, nick_to, msg):
 	for row in c.execute("SELECT * FROM later WHERE server = '{0}' AND channel = '{1}' AND nick_to = '{2}' AND msg = '{3}'".format(serv, chan, nick_to.lower(), msg)):
 		if nick_from.lower() == row[3].lower():
 			times += 1
-	c.commit()
 	c.close()
 
 	return times
@@ -84,3 +81,15 @@ def check(serv, chan, nick):
 		remove(serv, chan, nick)
 		return messages
 	return []
+
+# list of nicks for given serv/chan
+def list_nicks(serv, chan):
+	nicks = []
+	c = sqlite3.connect(settings.datafile_later)
+	for row in c.execute("SELECT DISTINCT nick_from FROM later WHERE server = '{0}' AND channel = '{1}'".format(serv, chan)):
+		nicks.append(row[3])
+	for row in c.execute("SELECT DISTINCT nick_to FROM later WHERE server = '{0}' AND channel = '{1}'".format(serv, chan)):
+		nicks.append(row[4])
+	c.close()
+	nicks = set(nicks)
+	return nicks

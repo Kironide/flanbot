@@ -1,14 +1,15 @@
 import util.later, util.chaninfo, util.misc
 
 def main(bot, cmdtext, retry=False):
-	bot.reply_safe(cmdtext)
 	if cmdtext[:5] == 'tell ':
 		if len(cmdtext.split(' ')) < 3:
 			bot.reply_safe('Command has too few arguments.')
 		else:
 			main(bot, cmdtext[5:])
-	elif cmdtext[:5] == 'view ':
-		bot.reply_safe('succ')
+	elif cmdtext.startswith('view'):
+		if len(cmdtext.split(' ')) == 1:
+			valid_users = util.later.list_nicks(bot.current_server(), bot.current_target())
+			bot.reply_safe(str(valid_users))
 	else:
 		if len(cmdtext.split(' ')) < 2:
 			bot.reply_safe('Command has too few arguments.')
