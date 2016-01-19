@@ -8,8 +8,9 @@ def init():
 		c.execute("CREATE TABLE later (server text, channel text, time text, nick_from text, nick_to text, msg text)")
 		c.commit()
 		c.close()
+
 	if not os.path.exists(settings.datafile_later + '.archive'):
-		c = sqlite3.connect(settings.datafile_later)
+		c = sqlite3.connect(settings.datafile_later + '.archive')
 		c.execute("CREATE TABLE later (server text, channel text, time text, nick_from text, nick_to text, msg text)")
 		c.commit()
 		c.close()
@@ -25,6 +26,7 @@ def add(serv, chan, nick_from, nick_to, msg):
 	c.execute("INSERT INTO later VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}')".format(serv, chan, str(timeutils.now()), nick_from, nick_to.lower(), msg))
 	c.commit()
 	c.close()
+
 	c = sqlite3.connect(settings.datafile_later + '.archive')
 	c.execute("INSERT INTO later VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}')".format(serv, chan, str(timeutils.now()), nick_from, nick_to.lower(), msg))
 	c.commit()
