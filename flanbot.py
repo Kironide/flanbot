@@ -95,11 +95,11 @@ class FlanBot:
 		if self.cparser.target_is_channel():
 			for msg in msgs:
 				self.send_msg(self.cparser.target, msg)
-				timeutils.sleep(settings.msg_delay)
+				util.timeutils.sleep(settings.msg_delay)
 		else:
 			for msg in msgs:
 				self.send_msg(self.current_nick(), msg)
-				timeutils.sleep(settings.msg_delay)
+				util.timeutils.sleep(settings.msg_delay)
 	def reply_safe(self, msg):
 		if msg[-1] == '.':
 			msg = msg[:len(msg)-1]
