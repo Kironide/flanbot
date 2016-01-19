@@ -28,7 +28,7 @@ def add(serv, chan, nick_from, nick_to, msg):
 		return False
 
 	c = sqlite3.connect(settings.datafile_later)
-	c.execute("INSERT INTO later VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}')".format(serv, chan, str(timeutils.now()), nick_from, nick_to, msg)
+	c.execute("INSERT INTO later VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}')".format(serv, chan, str(timeutils.now()), nick_from, nick_to, msg))
 	c.commit()
 	c.close()
 
@@ -66,7 +66,7 @@ def later_contains(serv, chan, nick):
 # number of times a message is recorded for someone
 def count(serv, chan, nick_from, nick_to, msg):
 	times = 0
-	
+
 	c = sqlite3.connect(settings.datafile_later)
 	for row in c.execute("SELECT * FROM later WHERE serv = '{0}' AND chan = '{1}' AND nick_to = '{2}' AND msg = '{3}'".format(serv, chan, nick_to, msg)):
 		if nick_from.lower() == row[3].lower():
