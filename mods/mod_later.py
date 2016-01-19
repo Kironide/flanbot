@@ -24,7 +24,7 @@ def main(bot, cmdtext, retry=False):
 				elif choice == "to":
 					messages = util.later.read_to(bot.current_server(), bot.current_target(), nick)
 				if len(messages) == 0:
-					bot.reply_safe("No messages to show.")
+					bot.reply_safe("No messages to show for {0}.".format(nick))
 				else:
 					max_count = len(messages)
 					for i in range(len(messages)):
@@ -33,7 +33,7 @@ def main(bot, cmdtext, retry=False):
 					bot.reply_safe("I'm done listing messages {0} {1}.".format(choice, nick))
 
 		else:
-			bot.reply_safe('Command has incorrect number of arguments.')
+			bot.reply_safe("The 'later view' command takes two additional arguments.")
 	else:
 		if len(cmdtext.split(' ')) < 2:
 			bot.reply_safe('Command has too few arguments.')

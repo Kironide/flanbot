@@ -54,14 +54,6 @@ def read(serv, chan, nick):
 
 	return to_send
 
-# returns true if server/channel/nick is in later
-def later_contains(serv, chan, nick):
-	c = sqlite3.connect(settings.datafile_later)
-	for row in c.execute("SELECT * FROM later WHERE server = '{0}' AND channel = '{1}' AND nick_to = '{2}'".format(serv, chan, nick.lower())):
-		return True
-	c.close()
-	return False
-
 # number of times a message is recorded for someone
 def count(serv, chan, nick_from, nick_to, msg):
 	times = 0
@@ -77,8 +69,8 @@ def count(serv, chan, nick_from, nick_to, msg):
 # checks for msgs
 def check(serv, chan, nick):
 	init()
-	if later_contains(serv, chan, nick):
-		messages = read(serv, chan, nick)
+	messages = read(serv, chan, nick)
+	if len(messages) > 0:
 		remove(serv, chan, nick)
 		return messages
 	return []
