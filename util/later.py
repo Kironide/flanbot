@@ -87,9 +87,9 @@ def list_nicks(serv, chan):
 	nicks = []
 	c = sqlite3.connect(settings.datafile_later)
 	for row in c.execute("SELECT DISTINCT nick_from FROM later WHERE server = '{0}' AND channel = '{1}'".format(serv, chan)):
-		nicks.append(row[3])
+		nicks.append(row[0])
 	for row in c.execute("SELECT DISTINCT nick_to FROM later WHERE server = '{0}' AND channel = '{1}'".format(serv, chan)):
-		nicks.append(row[4])
+		nicks.append(row[0])
 	c.close()
 	nicks = set(nicks)
 	return nicks
