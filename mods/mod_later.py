@@ -9,7 +9,27 @@ def main(bot, cmdtext, retry=False):
 	elif cmdtext.startswith('view'):
 		if len(cmdtext.split(' ')) == 1:
 			valid_users = util.later.list_nicks(bot.current_server(), bot.current_target())
-			bot.reply_safe(str(valid_users))
+			if len(valid_users) > 0:
+				bot.reply_safe("Nicks associated with this channel: " + ', '.join(valid_users))
+			else:
+				bot.reply_safe("No nicks associated with this channel.")
+		elif len(cmdtext.split(' ')) == 3:
+			cmd, choice, nick = cmdtext.split(' ')
+			if choice not in ("from", "to"):
+				bot.reply_safe("The second argument must be either 'from' or 'to'.")
+			else:
+				if choice == "from":
+					messages = util.later.read_from(bot.current_server(), bot.current_channel(), nick)
+				elif choice == "to":
+					messages = util.later.read_to(bot.current_server(), bot.current_channel(), nick)
+				if len(messages) == 0:
+					bot.reply_safe("No messages to show.")
+				else:
+					for m in messages:
+						bot.reply(m)
+
+		else:
+			bot.reply_safe('Command has incorrect number of arguments.')
 	else:
 		if len(cmdtext.split(' ')) < 2:
 			bot.reply_safe('Command has too few arguments.')

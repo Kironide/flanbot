@@ -92,6 +92,31 @@ def list_nicks(serv, chan):
 		nicks.append(row[0])
 	c.close()
 	nicks = list(set(nicks))
-	sorted(nicks)
-	print(nicks)
+	nicks.sort()
 	return nicks
+
+# reads msgs from specific user
+def read_from(serv, chan, nick_from):
+	messages = []
+
+	c = sqlite3.connect(settings.datafile_later)
+	for row in c.execute("SELECT * FROM later WHERE server = '{0}' AND channel = '{1}'".format(serv, chan)):
+		if nick_from.lower() == row[3].lower():
+			time_diff = timeutils.timediff(float(row[2]))
+			messages.append("{0} to {1} ({2}): {3}".format(row[3], row[4], time_diff, row[5]))
+	c.close()
+
+	return messages
+
+# reads msgs to specific user
+def read_to(serv, chan, nick_to):
+	messages = []
+
+	c = sqlite3.connect(settings.datafile_later)
+	for row in c.execute("SELECT * FROM later WHERE server = '{0}' AND channel = '{1}'".format(serv, chan)):
+		if nick_to.lower() == row[4].lower():
+			time_diff = timeutils.timediff(float(row[2]))
+			messages.append("{0} to {1} ({2}): {3}".format(row[3], row[4], time_diff, row[5]))
+	c.close()
+
+	return messages
