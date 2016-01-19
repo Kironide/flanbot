@@ -48,7 +48,7 @@ def read(serv, chan, nick):
 	c = sqlite3.connect(settings.datafile_later)
 	for row in c.execute("SELECT * FROM later WHERE server = '{0}' AND channel = '{1}' AND nick_to = '{2}'".format(serv, chan, nick.lower())):
 		timestamp, nick_from, msg = float(row[2]), row[3], row[5]
-		to_send.append("{0}: ({1} ago) <{2}> {3}".format(nick, timeutils.timediff(timestamp), nick_from, msg))
+		to_send.append(u"{0}: ({1} ago) <{2}> {3}".format(nick, timeutils.timediff(timestamp), nick_from, msg))
 	c.close()
 
 	return to_send
@@ -103,7 +103,7 @@ def read_from(serv, chan, nick_from):
 	for row in c.execute("SELECT * FROM later WHERE server = '{0}' AND channel = '{1}'".format(serv, chan)):
 		if nick_from.lower() == row[3].lower():
 			time_diff = timeutils.timediff(float(row[2]))
-			messages.append(u"{0} to {1} ({2}): {3}".format(row[3], row[4], time_diff, row[5].encode("utf-8")))
+			messages.append(u"{0} to {1} ({2}): {3}".format(row[3], row[4], time_diff, row[5]))
 	c.close()
 
 	return messages
@@ -116,7 +116,7 @@ def read_to(serv, chan, nick_to):
 	for row in c.execute("SELECT * FROM later WHERE server = '{0}' AND channel = '{1}'".format(serv, chan)):
 		if nick_to.lower() == row[4].lower():
 			time_diff = timeutils.timediff(float(row[2]))
-			messages.append(u"{0} to {1} ({2}): {3}".format(row[3], row[4], time_diff, row[5].encode("utf-8")))
+			messages.append(u"{0} to {1} ({2}): {3}".format(row[3], row[4], time_diff, row[5]))
 	c.close()
 
 	return messages
