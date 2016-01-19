@@ -18,7 +18,7 @@ const_e = 2.71828
 cmds_secure = ['part','msg','raw','server','quit','test']
 cmds_disabled = []
 
-datafile_later = 'data/later.dat'
+datafile_later = 'data/later.db'
 datafile_seen = 'data/seen.dat'
 datafile_chaninfo = 'data/chaninfo.dat'
 datafile_mafia = 'data/mafia.dat'
@@ -34,6 +34,10 @@ folder_books = 'books'
 
 prefix_repeat = 'repeat_'
 folder_repeat = 'repeat'
+
+prefix_logs = 'log'
+folder_logs = 'logs'
+suffix_logs = '.db'
 
 msg_reload = 'Reloaded utility modules.'
 msg_notauth = 'You are not authorized for this command.'

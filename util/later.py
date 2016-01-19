@@ -1,5 +1,13 @@
+import sqlite3, os
 import timeutils, dataio, misc
 import settings
+
+def init():
+	if not os.path.exists(settings.datafile_later):
+		c = sqlite3.connect(settings.datafile_later)
+		c.execute("CREATE TABLE later (server text, channel text, time text, from text, to text, msg text)")
+		c.commit()
+		c.close()
 
 # returns the pickled object in later.dat
 # creates file with empty dict if it doesn't exist
@@ -18,56 +26,54 @@ def add(serv, chan, nick_from, nick_to, msg):
 	times = count(serv, chan, nick_from, nick_to, msg)
 	if times >= 3:
 		return False
-	later = load()
-	if serv not in later:
-		later[serv] = {}
-	if chan not in later[serv]:
-		later[serv][chan] = {}
-	if nick_to not in later[serv][chan]:
-		later[serv][chan][nick_to] = []
-	later[serv][chan][nick_to].append({'time': timeutils.now(), 'from': nick_from, 'msg': msg})
-	save(later)
+
+	c = sqlite3.connect(settings.datafile_later)
+	c.execute("INSERT INTO later VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}')".format(serv, chan, str(timeutils.now()), nick_from, nick_to, msg)
+	c.commit()
+	c.close()
+
 	return True
 
 # removes a server/channel/nick combination
 def remove(serv, chan, nick):
-	later = load()
-	if serv in later:
-		if chan in later[serv]:
-			if nick.lower() in later[serv][chan]:
-				later[serv][chan].pop(nick.lower(), None)
-	save(later)
+	c = sqlite3.connect(settings.datafile_later)
+	c.execute("DELETE FROM later WHERE serv = '{0}' AND chan = '{1}' AND nick_to = '{2}'".format(serv, chan, nick))
+	c.commit()
+	c.close()
 
 # gets a list of messages to send for a certain server/channel/nick combination
 def read(serv, chan, nick):
-	later = load()
 	to_send = []
-	if serv in later:
-		if chan in later[serv]:
-			if nick.lower() in later[serv][chan]:
-				for msg in later[serv][chan][nick.lower()]:
-					to_send.append(''+nick+': ('+timeutils.timediff(msg['time'])+' ago) <'+msg['from']+'> '+msg['msg'])
+
+	c = sqlite3.connect(settings.datafile_later)
+	for row in c.execute("SELECT * FROM later WHERE serv = '{0}' AND chan = '{1}' AND nick_to = '{2}'".format(serv, chan, nick)):
+		timetamp, nick_from, msg = float(row[2]), row[3], row[5]
+			to_send.append("{0}: ({1} ago) <{2}> {3}".format(nick, timeutils.timediff(timestamp), nick_from, msg))
+	c.commit()
+	c.close()
+
 	return to_send
 
 # returns true if server/channel/nick is in later
 def later_contains(serv, chan, nick):
-	later = load()
-	if serv in later:
-		if chan in later[serv]:
-			if nick.lower() in later[serv][chan]:
-				return True
+	c = sqlite3.connect(settings.datafile_later)
+	for row in c.execute("SELECT * FROM later WHERE serv = '{0}' AND chan = '{1}' AND nick_to = '{2}'".format(serv, chan, nick)):
+		return True
+	c.commit()
+	c.close()
 	return False
 
 # number of times a message is recorded for someone
 def count(serv, chan, nick_from, nick_to, msg):
-	later = load()
 	times = 0
-	if serv in later:
-		if chan in later[serv]:
-			if nick_to in later[serv][chan]:
-				for item in later[serv][chan][nick_to]:
-					if item['msg'] == msg and item['from'].lower() == nick_from.lower():
-						times += 1
+	
+	c = sqlite3.connect(settings.datafile_later)
+	for row in c.execute("SELECT * FROM later WHERE serv = '{0}' AND chan = '{1}' AND nick_to = '{2}' AND msg = '{3}'".format(serv, chan, nick_to, msg)):
+		if nick_from.lower() == row[3].lower():
+			times += 1
+	c.commit()
+	c.close()
+
 	return times
 
 # checks for msgs
