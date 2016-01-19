@@ -4,7 +4,7 @@ def main(bot, cmdtext):
 	messages.append(' '.join(temp))
 
 	for i in range(1, len(cmdtext) - 1):
-		msg = cmdtext[i].upper() + ' ' * ((len(cmdtext) * 2) - 3) + cmdtext[len(cmdtext) - i].upper()
+		msg = cmdtext[i].upper() + ' ' * ((len(cmdtext) * 2) - 3) + cmdtext[-i-1].upper()
 		messages.append(msg)
 
 	temp.reverse()
