@@ -1,6 +1,7 @@
 import util.later, util.chaninfo, util.misc
 
 def main(bot, cmdtext, retry=False):
+	bot.reply_safe(cmdtext)
 	if cmdtext[:5] == 'tell ':
 		if len(cmdtext.split(' ')) < 3:
 			bot.reply_safe('Command has too few arguments.')
