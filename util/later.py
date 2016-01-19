@@ -91,5 +91,7 @@ def list_nicks(serv, chan):
 	for row in c.execute("SELECT DISTINCT nick_to FROM later WHERE server = '{0}' AND channel = '{1}'".format(serv, chan)):
 		nicks.append(row[0])
 	c.close()
-	nicks = list(set(nicks)).sort()
+	nicks = list(set(nicks))
+	sorted(nicks)
+	print(nicks)
 	return nicks
