@@ -14,6 +14,7 @@ ping_timeout_limit = 5
 integral_steps = 50000
 const_pi = 3.14159265359
 const_e = 2.71828
+max_length = 500
 
 cmds_secure = ['part','msg','raw','server','quit','test']
 cmds_disabled = []
