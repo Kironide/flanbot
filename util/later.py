@@ -18,6 +18,7 @@ def init():
 # adds a msg to send to the later object
 def add(serv, chan, nick_from, nick_to, msg):
 	msg = msg.replace("'", "''")
+	nick_to = msg.replace("'", "''")
 	nick_to = nick_to.lower()
 	times = count(serv, chan, nick_from, nick_to, msg)
 	if times >= 3:
