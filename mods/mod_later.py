@@ -27,6 +27,7 @@ def main(bot, cmdtext, retry=False):
 				else:
 					for m in messages:
 						bot.reply(m)
+					bot.reply_safe("I'm done listing messages {0} {1}.".format(choice, nick))
 
 		else:
 			bot.reply_safe('Command has incorrect number of arguments.')
