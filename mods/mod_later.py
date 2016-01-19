@@ -1,3 +1,4 @@
+import time
 import util.later, util.chaninfo, util.misc
 
 def main(bot, cmdtext, retry=False):
@@ -25,8 +26,12 @@ def main(bot, cmdtext, retry=False):
 				if len(messages) == 0:
 					bot.reply_safe("No messages to show.")
 				else:
+					count = 1
+					max_count = len(messages)
 					for m in messages:
-						bot.reply(m)
+						bot.reply("{0}/{1} ".format(str(count), str(max_count)) + m)
+						time.sleep(0.5)
+						count += 1
 					bot.reply_safe("I'm done listing messages {0} {1}.".format(choice, nick))
 
 		else:
