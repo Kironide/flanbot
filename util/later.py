@@ -46,7 +46,7 @@ def read(serv, chan, nick):
 # returns true if server/channel/nick is in later
 def later_contains(serv, chan, nick):
 	c = sqlite3.connect(settings.datafile_later)
-	for row in c.execute("SELECT * FROM later WHERE server = '{0}' AND channel = '{1}' AND nick_to = '{2}'".format(serv, chan, nick)):
+	for row in c.execute("SELECT * FROM later WHERE server = '{0}' AND channel = '{1}' AND nick_to = '{2}'".format(serv, chan, nick.lower())):
 		return True
 	c.commit()
 	c.close()
