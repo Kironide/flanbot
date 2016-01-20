@@ -17,6 +17,7 @@ const_e = 2.71828
 max_length = 420
 msg_delay = 0.5
 num_messages_max = 10
+book_phrase_length = 5
 
 cmds_secure = ['part','msg','raw','server','quit','test']
 cmds_disabled = ['london']

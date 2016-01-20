@@ -12,4 +12,5 @@ def random_sentence(book):
 	if bookdata == None:
 		return settings.msg_nobook
 	blob = TextBlob(ftfy.fix_text(bookdata.decode('utf-8')))
-	return blob.sentences[random.randint(1,len(blob.sentences))-1]
+	pos = random.randint(1,len(blob.sentences))-1
+	return blob.sentences[pos:pos+settings.book_phrase_length]
