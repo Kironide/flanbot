@@ -29,8 +29,8 @@ def main(bot, cmdtext, retry=False):
 					max_count = len(messages)
 					for i in range(len(messages)):
 						messages[i] = "[{0}/{1}] ".format(str(i+1), str(max_count)) + messages[i]
+					messages.append("I'm done listing messages {0} {1}.".format(choice, nick))
 					bot.reply_list(messages)
-					bot.reply_safe("I'm done listing messages {0} {1}.".format(choice, nick))
 
 		else:
 			bot.reply_safe("The 'later view' command takes two additional arguments.")

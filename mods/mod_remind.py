@@ -25,8 +25,8 @@ def main(bot, cmdtext):
 					max_count = len(messages)
 					for i in range(len(messages)):
 						messages[i] = "[{0}/{1}] ".format(str(i+1), str(max_count)) + messages[i]
+					messages.append("I'm done listing messages {0} {1}.".format(choice, nick))
 					bot.reply_list(messages)
-					bot.reply_safe("I'm done listing messages {0} {1}.".format(choice, nick))
 	elif len(args) > 2:
 		target = args[0]
 		if target.lower() == 'me':
