@@ -5,7 +5,7 @@ import settings
 def init():
 	if not os.path.exists(settings.datafile_remind):
 		c = sqlite3.connect(settings.datafile_remind)
-		c.execute("CREATE TABLE remind (server text, channel text, time_start integer, time_end integer, nick_from text, nick_to text, msg text)")
+		c.execute("CREATE TABLE remind (server text, channel text, time_start real, time_end real, nick_from text, nick_to text, msg text)")
 		c.commit()
 		c.close()
 
@@ -38,7 +38,7 @@ def get_reminders(serv):
 	current_time = timeutils.now()
 	c = sqlite3.connect(settings.datafile_remind)
 	for row in c.execute("SELECT * FROM remind WHERE server = '{0}' AND time_end <= {1}".format(serv, str(current_time))):
-		reminder = [row[1], int(row[2]), int(row[3]), row[4], row[5], row[6]]
+		reminder = [row[1], float(row[2]), float(row[3]), row[4], row[5], row[6]]
 		queue.append(reminder)
 	c.execute("DELETE FROM remind WHERE server = '{0}' AND time_end <= {1}".format(serv, str(current_time)))
 	c.commit()
