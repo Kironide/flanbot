@@ -184,6 +184,8 @@ class FlanBot:
 				cmdtext = match[1]+' '+cmdtext
 				self.reply_safe('I\'ll interpret that command as \''+correct+'\'. Maybe you made a typo.')
 				if correct != settings.cmd_reload:
+					print(correct)
+					print(cmdtext)
 					self.irccommand(correct, cmdtext)
 				else:
 					self.send_msg(settings.botnick,settings.prefix+correct+' '+cmdtext)
