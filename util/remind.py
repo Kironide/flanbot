@@ -8,9 +8,9 @@ def init():
 		c.execute("CREATE TABLE remind (server text, channel text, time_start real, time_end real, nick_from text, nick_to text, msg text)")
 		c.commit()
 		c.close()
-		
+
 	if not os.path.exists(settings.datafile_remind + '.archive'):
-		c = sqlite3.connect(settings.datafile_remind)
+		c = sqlite3.connect(settings.datafile_remind + '.archive')
 		c.execute("CREATE TABLE remind (server text, channel text, time_start real, time_end real, nick_from text, nick_to text, msg text)")
 		c.commit()
 		c.close()
