@@ -17,12 +17,16 @@ def init():
 def add_reminder(serv, chan, tdest, sender, target, msg):
 	if timeutils.validate(tdest):
 		current_time = timeutils.now()
-		duration = timeutils.parse(tdest)
-		time_end = current_time + duration
+		time_end = timeutils.parse(tdest)
 		target = misc.sanitize_sql(target)
 		msg = misc.sanitize_sql(msg)
 
 		c = sqlite3.connect(settings.datafile_remind)
+		c.execute("INSERT INTO remind VALUES ('{0}', '{1}', {2}, {3}, '{4}', '{5}', '{6}')".format(serv, chan, str(current_time), str(time_end), sender, target, msg))
+		c.commit()
+		c.close()
+
+		c = sqlite3.connect(settings.datafile_remind + '.archive')
 		c.execute("INSERT INTO remind VALUES ('{0}', '{1}', {2}, {3}, '{4}', '{5}', '{6}')".format(serv, chan, str(current_time), str(time_end), sender, target, msg))
 		c.commit()
 		c.close()
