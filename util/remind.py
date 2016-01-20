@@ -2,10 +2,11 @@ import sqlite3, os
 import timeutils, misc
 import settings
 
-# rdata stores the remind data
+# OLD DATA STRUCTURE:
 # dictionary with key = server, value = list of reminders on that server
 # value = [#chan, time_from, time_send, sender, target, msg]
 
+# checks for existence of SQLite databases
 def init():
 	if not os.path.exists(settings.datafile_remind):
 		c = sqlite3.connect(settings.datafile_remind)
@@ -41,6 +42,7 @@ def add_reminder(serv, chan, tdest, sender, target, msg):
 	else:
 		return ('Invalid input.')
 
+# get a list of reminders for a specific server that have to be delivered
 def get_reminders(serv):
 	init()
 
@@ -55,7 +57,7 @@ def get_reminders(serv):
 	c.close()
 	return queue
 
-# list of nicks for given serv/chan
+# list nicks that have pending messages to/from them
 def list_nicks(serv, chan):
 	nicks = []
 	c = sqlite3.connect(settings.datafile_remind)
@@ -68,7 +70,7 @@ def list_nicks(serv, chan):
 	nicks.sort()
 	return nicks
 
-# reads msgs from specific user
+# reads remind msgs from specific user
 def read_from(serv, chan, nick_from):
 	messages = []
 
@@ -81,7 +83,7 @@ def read_from(serv, chan, nick_from):
 
 	return messages
 
-# reads msgs to specific user
+# reads remind msgs to specific user
 def read_to(serv, chan, nick_to):
 	messages = []
 

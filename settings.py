@@ -7,7 +7,7 @@ repeat_interval = 1
 cmd_server = 'server'
 cmd_quit = 'quit'
 cmd_reload = 'reload'
-TEST = True
+TEST = False
 time_parse_truncate = 3
 ping_modulus = 100000
 ping_timeout_limit = 5
@@ -16,6 +16,7 @@ const_pi = 3.14159265359
 const_e = 2.71828
 max_length = 420
 msg_delay = 0.5
+num_messages_max = 10
 
 cmds_secure = ['part','msg','raw','server','quit','test']
 cmds_disabled = ['london']
@@ -48,6 +49,7 @@ if not TEST:
 	servers['nucleus.kafuka.org'] = ['#fraxy','#board2']
 	servers['irc.rizon.net'] = ['#flantest','#neritic-net','#suikatest','#/jp/ma','#solidus','#quizup','#elona','#batoru']
 	servers['irc.efnet.net'] = ['#snifit']
+	servers['irc.freenode.net'] = ['#/r/badeconomics', '#hearthsim']
 else:
 	servers['irc.rizon.net'] = ['#flantest']
 	servers['nucleus.kafuka.org'] = ['#flantest']

@@ -2,6 +2,7 @@ import sqlite3, os
 import timeutils
 import settings
 
+# checks for existence of SQLite database
 def init():
 	if not os.path.exists(settings.datafile_later):
 		c = sqlite3.connect(settings.datafile_later)
@@ -55,7 +56,7 @@ def count(serv, chan, nick_from, nick_to, msg):
 
 	return times
 
-# checks for msgs
+# checks for msgs for specific user and return list of formatted messages
 def check(serv, chan, nick):
 	init()
 	messages = []
@@ -72,7 +73,7 @@ def check(serv, chan, nick):
 	
 	return messages
 
-# list of nicks for given serv/chan
+# list nicks with pending messages to/from them
 def list_nicks(serv, chan):
 	nicks = []
 	c = sqlite3.connect(settings.datafile_later)
@@ -85,7 +86,7 @@ def list_nicks(serv, chan):
 	nicks.sort()
 	return nicks
 
-# reads msgs from specific user
+# reads later msgs from specific user
 def read_from(serv, chan, nick_from):
 	messages = []
 
@@ -98,7 +99,7 @@ def read_from(serv, chan, nick_from):
 
 	return messages
 
-# reads msgs to specific user
+# reads later msgs to specific user
 def read_to(serv, chan, nick_to):
 	messages = []
 

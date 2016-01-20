@@ -94,20 +94,28 @@ class FlanBot:
 		else:
 			self.send_msg(self.current_nick(), msg)
 	def reply_list(self, msgs):
-		if self.cparser.target_is_channel():
-			for msg in msgs:
-				self.send_msg(self.cparser.target, msg)
-				util.timeutils.sleep(settings.msg_delay)
+		if len(msgs) > settings.num_messages.max:
+			self.reply_safe("The number of queued messages exceeds {0}, so they have been sent via query.".format(str(settings.num_messages_max)))
+			self.reply_notice_list(msgs)
 		else:
-			for msg in msgs:
-				self.send_msg(self.current_nick(), msg)
-				util.timeutils.sleep(settings.msg_delay)
+			if self.cparser.target_is_channel():
+				for msg in msgs:
+					self.send_msg(self.cparser.target, msg)
+					util.timeutils.sleep(settings.msg_delay)
+			else:
+				for msg in msgs:
+					self.send_msg(self.current_nick(), msg)
+					util.timeutils.sleep(settings.msg_delay)
 	def reply_safe(self, msg):
 		if msg[-1] == '.':
 			msg = msg[:len(msg)-1]
 		self.reply(msg + util.misc.randext())
 	def reply_notice(self, msg):
 		self.send_notice(self.current_nick(),msg)
+	def reply_notice_list(self, msgs):
+		for msg in msgs:
+			self.send_notice(self.current_nick(), msg)
+			util.timeutils.sleep(settings.msg_delay)
 
 	def auth(self):
 		return self.current_nick() == 'Kironide'

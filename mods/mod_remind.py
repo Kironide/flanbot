@@ -2,8 +2,8 @@ import util.remind, util.timeutils
 
 def main(bot, cmdtext):
 	args = cmdtext.split(' ')
-	if cmdtext.startswith('view'):
-		if len(cmdtext.split(' ')) == 1:
+	if args[0] == "view":
+		if len(args) == 1:
 			valid_users = util.remind.list_nicks(bot.current_server(), bot.current_target())
 			if len(valid_users) > 0:
 				bot.reply_safe("Nicks associated with this channel have been privately messaged to you.")
