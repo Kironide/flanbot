@@ -13,4 +13,4 @@ def random_sentence(book):
 		return settings.msg_nobook
 	blob = TextBlob(ftfy.fix_text(bookdata.decode('utf-8')))
 	pos = random.randint(1,len(blob.sentences))-1
-	return blob.sentences[pos:pos+settings.book_phrase_length]
+	return ' '.join([str(x) for x in blob.sentences[pos:pos+settings.book_phrase_length]])
