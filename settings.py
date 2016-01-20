@@ -18,7 +18,7 @@ max_length = 420
 msg_delay = 0.5
 
 cmds_secure = ['part','msg','raw','server','quit','test']
-cmds_disabled = []
+cmds_disabled = ['london']
 
 datafile_later = 'data/later.db'
 datafile_seen = 'data/seen.dat'

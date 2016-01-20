@@ -1,4 +1,3 @@
-import time
 import util.later, util.chaninfo, util.misc
 
 def main(bot, cmdtext, retry=False):

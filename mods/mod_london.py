@@ -8,6 +8,7 @@ def main(bot, cmdtext):
 		messages.append(msg)
 
 	temp.reverse()
-	messages.append(' '.join(temp))
+	if len(cmdtext) > 1:
+		messages.append(' '.join(temp))
 
 	bot.reply_list(messages)
