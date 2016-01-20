@@ -2,6 +2,10 @@ import sqlite3, os
 import timeutils, misc
 import settings
 
+# rdata stores the remind data
+# dictionary with key = server, value = list of reminders on that server
+# value = [#chan, time_from, time_send, sender, target, msg]
+
 def init():
 	if not os.path.exists(settings.datafile_remind):
 		c = sqlite3.connect(settings.datafile_remind)
@@ -14,10 +18,6 @@ def init():
 		c.execute("CREATE TABLE remind (server text, channel text, time_start real, time_end real, nick_from text, nick_to text, msg text)")
 		c.commit()
 		c.close()
-
-# rdata stores the remind data
-# dictionary with key = server, value = list of reminders on that server
-# value = [#chan, time_from, time_send, sender, target, msg]
 
 # adds a reminder based on user input and then returns confirmation message
 def add_reminder(serv, chan, tdest, sender, target, msg):
@@ -54,3 +54,42 @@ def get_reminders(serv):
 	c.commit()
 	c.close()
 	return queue
+
+# list of nicks for given serv/chan
+def list_nicks(serv, chan):
+	nicks = []
+	c = sqlite3.connect(settings.datafile_remind)
+	for row in c.execute("SELECT DISTINCT nick_from FROM remind WHERE server = '{0}' AND channel = '{1}'".format(serv, chan)):
+		nicks.append(row[0])
+	for row in c.execute("SELECT DISTINCT nick_to FROM remind WHERE server = '{0}' AND channel = '{1}'".format(serv, chan)):
+		nicks.append(row[0])
+	c.close()
+	nicks = list(set(nicks))
+	nicks.sort()
+	return nicks
+
+# reads msgs from specific user
+def read_from(serv, chan, nick_from):
+	messages = []
+
+	c = sqlite3.connect(settings.datafile_remind)
+	for row in c.execute("SELECT * FROM remind WHERE server = '{0}' AND channel = '{1}'".format(serv, chan)):
+		if nick_from.lower() == row[4].lower():
+			time_diff = timeutils.timediff(float(row[3]))
+			messages.append(u"{0} to {1} (in {2}): {3}".format(row[4], row[5], time_diff, row[6]))
+	c.close()
+
+	return messages
+
+# reads msgs to specific user
+def read_to(serv, chan, nick_to):
+	messages = []
+
+	c = sqlite3.connect(settings.datafile_remind)
+	for row in c.execute("SELECT * FROM remind WHERE server = '{0}' AND channel = '{1}'".format(serv, chan)):
+		if nick_to.lower() == row[5].lower():
+			time_diff = timeutils.timediff(float(row[3]))
+			messages.append(u"{0} to {1} (in {2}): {3}".format(row[4], row[5], time_diff, row[6]))
+	c.close()
+
+	return messages
