@@ -24,6 +24,7 @@ def add_reminder(serv, chan, tdest, sender, target, msg):
 	if timeutils.validate(tdest):
 		current_time = timeutils.now()
 		time_end = timeutils.parse(tdest)
+		duration = time_end - current_time
 		target = misc.sanitize_sql(target)
 		msg = misc.sanitize_sql(msg)
 
