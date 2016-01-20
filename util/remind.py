@@ -70,11 +70,8 @@ def list_nicks(serv, chan):
 	nicks.sort()
 	to_remove = []
 	for n in nicks:
-		if n.lower() in nicks:
-			to_remove.append(n.lower())
-	to_remove = set(to_remove)
-	for x in to_remove:
-		nicks.remove(x)
+		if n != n.lower() and n.lower() in nicks:
+			nicks.remove(n.lower())
 	return nicks
 
 # reads remind msgs from specific user
