@@ -2,7 +2,7 @@ import util.remind, util.timeutils
 
 def main(bot, cmdtext):
 	args = cmdtext.split(' ')
-	if len(args) <= 2:
+	if len(args) <= 1:
 		bot.reply_safe('Not enough arguments.')
 	elif cmdtext.startswith('view'):
 		if len(cmdtext.split(' ')) == 1:
