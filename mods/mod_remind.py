@@ -2,9 +2,7 @@ import util.remind, util.timeutils
 
 def main(bot, cmdtext):
 	args = cmdtext.split(' ')
-	if len(args) <= 1:
-		bot.reply_safe('Not enough arguments.')
-	elif cmdtext.startswith('view'):
+	if cmdtext.startswith('view'):
 		if len(cmdtext.split(' ')) == 1:
 			valid_users = util.remind.list_nicks(bot.current_server(), bot.current_target())
 			if len(valid_users) > 0:
@@ -29,7 +27,7 @@ def main(bot, cmdtext):
 						messages[i] = "[{0}/{1}] ".format(str(i+1), str(max_count)) + messages[i]
 					bot.reply_list(messages)
 					bot.reply_safe("I'm done listing messages {0} {1}.".format(choice, nick))
-	else:
+	elif len(args) > 2:
 		target = args[0]
 		if target.lower() == 'me':
 			target = bot.current_nick()
@@ -40,3 +38,5 @@ def main(bot, cmdtext):
 			bot.reply_safe('Invalid time argument.')
 		else:
 			bot.reply(util.remind.add_reminder(bot.current_server(),bot.current_target(),sinput[0],bot.current_nick(),target,sinput[1]))
+	else:
+		bot.reply_safe('Not enough arguments.')
