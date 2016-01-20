@@ -10,7 +10,8 @@ def main(bot, cmdtext, retry=False):
 		if len(cmdtext.split(' ')) == 1:
 			valid_users = util.later.list_nicks(bot.current_server(), bot.current_target())
 			if len(valid_users) > 0:
-				bot.reply_safe("Nicks associated with this channel: " + ', '.join(valid_users))
+				bot.reply_safe("Nicks associated with this channel have been privately messaged to you.")
+				bot.reply_notice("Nicks associated with this channel: " + ', '.join(valid_users))
 			else:
 				bot.reply_safe("No nicks associated with this channel.")
 		elif len(cmdtext.split(' ')) == 3:

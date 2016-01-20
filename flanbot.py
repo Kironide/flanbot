@@ -66,7 +66,9 @@ class FlanBot:
 		for part in [msg[i:i+settings.max_length] for i in range(0, len(msg), settings.max_length)]:
 			self.conn.send('PRIVMSG '+chan+' :'+part+'\n')
 	def send_notice(self, chan, msg):
-		self.conn.send('NOTICE '+chan+' :'+str(msg)+'\n')
+		msg = msg.encode('utf-8')
+		for part in [msg[i:i+settings.max_length] for i in range(0, len(msg), settings.max_length)]:
+			self.conn.send('NOTICE '+chan+' :'+part+'\n')
 	def join(self, chan):
 		self.conn.send('JOIN '+chan+'\n')
 	def part(self, chan):

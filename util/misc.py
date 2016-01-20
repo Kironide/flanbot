@@ -4,6 +4,10 @@ import settings
 from pyxdameraulevenshtein import damerau_levenshtein_distance as distance
 from pyxdameraulevenshtein import normalized_damerau_levenshtein_distance as norm_distance
 
+# returns sql sanitized input
+def sanitize_sql(s):
+	return s.replace("'", "''")
+
 # prints info about exceptions
 def handle_exception(e):
 	print(e)

@@ -1,5 +1,5 @@
 import sqlite3, os
-import timeutils, dataio, misc
+import timeutils
 import settings
 
 def init():
@@ -17,8 +17,8 @@ def init():
 
 # adds a msg to send to the later object
 def add(serv, chan, nick_from, nick_to, msg):
-	msg = msg.replace("'", "''")
-	nick_to = msg.replace("'", "''")
+	msg = misc.sanitize_sql(msg)
+	nick_to = misc.sanitize_sql(nick_to)
 	nick_to = nick_to.lower()
 	times = count(serv, chan, nick_from, nick_to, msg)
 	if times >= 3:

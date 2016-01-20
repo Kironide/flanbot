@@ -37,10 +37,6 @@ folder_books = 'books'
 prefix_repeat = 'repeat_'
 folder_repeat = 'repeat'
 
-prefix_logs = 'log'
-folder_logs = 'logs'
-suffix_logs = '.db'
-
 msg_reload = 'Reloaded utility modules.'
 msg_notauth = 'You are not authorized for this command.'
 msg_disabled = 'That command is turned off.'
