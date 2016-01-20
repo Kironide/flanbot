@@ -94,7 +94,7 @@ class FlanBot:
 		else:
 			self.send_msg(self.current_nick(), msg)
 	def reply_list(self, msgs):
-		if len(msgs) > settings.num_messages.max:
+		if len(msgs) > settings.num_messages_max:
 			self.reply_safe("The number of queued messages exceeds {0}, so they have been sent via query.".format(str(settings.num_messages_max)))
 			self.reply_notice_list(msgs)
 		else:
