@@ -24,7 +24,6 @@ def add_reminder(serv, chan, tdest, sender, target, msg):
 	if timeutils.validate(tdest):
 		current_time = timeutils.now()
 		time_end = timeutils.parse(tdest)
-		duration = time_end - current_time
 		target = misc.sanitize_sql(target)
 		msg = misc.sanitize_sql(msg)
 
@@ -38,7 +37,7 @@ def add_reminder(serv, chan, tdest, sender, target, msg):
 		c.commit()
 		c.close()
 
-		return('Okay, I\'ll remind '+target+' in '+timeutils.timediff(duration)+'!')
+		return('Okay, I\'ll remind '+target+' in '+timeutils.timediff(tiime_end)+'!')
 	else:
 		return ('Invalid input.')
 
