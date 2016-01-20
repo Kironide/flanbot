@@ -72,6 +72,7 @@ def list_nicks(serv, chan):
 	for n in nicks:
 		if n.lower() in nicks:
 			to_remove.append(n.lower())
+	to_remove = set(to_lower)
 	for x in to_remove:
 		nicks.remove(x)
 	return nicks
