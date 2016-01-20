@@ -5,7 +5,7 @@ import settings
 def init():
 	if not os.path.exists(settings.datafile_remind):
 		c = sqlite3.connect(settings.datafile_remind)
-		c.execute("CREATE TABLE remind (server text, channel text, time_from text, duration text, nick_from text, nick_to text, msg text)")
+		c.execute("CREATE TABLE remind (server text, channel text, time_start integer, time_end integer, nick_from text, nick_to text, msg text)")
 		c.commit()
 		c.close()
 
@@ -16,13 +16,14 @@ def init():
 # adds a reminder based on user input and then returns confirmation message
 def add_reminder(serv, chan, tdest, sender, target, msg):
 	if timeutils.validate(tdest):
-		current_time = str(timeutils.now())
+		current_time = timeutils.now()
 		duration = timeutils.parse(tdest)
+		time_end = current_time + duration
 		target = misc.sanitize_sql(target)
 		msg = misc.sanitize_sql(msg)
 
 		c = sqlite3.connect(settings.datafile_remind)
-		c.execute("INSERT INTO remind VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')".format(serv, chan, current_time, duration, sender, target, msg))
+		c.execute("INSERT INTO remind VALUES ('{0}', '{1}', {2}, {3}, '{4}', '{5}', '{6}')".format(serv, chan, str(current_time), str(time_end), sender, target, msg))
 		c.commit()
 		c.close()
 
@@ -32,20 +33,14 @@ def add_reminder(serv, chan, tdest, sender, target, msg):
 
 def get_reminders(serv):
 	init()
-	
-	c = sqlite3.connect(settings.datafile_remind)
-	if
 
-
-	rdata = load()
-	if serv not in rdata:
-		return []
 	queue = []
-	now = timeutils.now()
-	for reminder in rdata[serv]:
-		if now >= reminder[2]:
-			queue.append(reminder)
-	for r in queue:
-		rdata[serv].remove(r)
-	save(rdata)
+	current_time = timeutils.now()
+	c = sqlite3.connect(settings.datafile_remind)
+	for row in c.execute("SELECT * FROM remind WHERE server = '{0}' AND time_end <= {1}".format(serv, str(current_time))):
+		reminder = [row[1], int(row[2]), int(row[3]), row[4], row[5], row[6]]
+		queue.append(reminder)
+	c.execute("DELETE FROM remind WHERE server = '{0}' AND time_end <= {1}".format(serv, str(current_time)))
+	c.commit()
+	c.close()
 	return queue

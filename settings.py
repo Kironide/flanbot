@@ -24,7 +24,7 @@ datafile_later = 'data/later.db'
 datafile_seen = 'data/seen.dat'
 datafile_chaninfo = 'data/chaninfo.dat'
 datafile_mafia = 'data/mafia.dat'
-datafile_remind = 'data/remind.dat'
+datafile_remind = 'data/remind.db'
 
 prefix_mods = 'mod_'
 folder_mods = 'mods'
