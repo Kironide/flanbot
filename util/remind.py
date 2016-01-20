@@ -37,7 +37,7 @@ def add_reminder(serv, chan, tdest, sender, target, msg):
 		c.commit()
 		c.close()
 
-		return('Okay, I\'ll remind '+target+' in '+timeutils.timediff(tiime_end)+'!')
+		return('Okay, I\'ll remind '+target+' in '+timeutils.timediff(time_end)+'!')
 	else:
 		return ('Invalid input.')
 
